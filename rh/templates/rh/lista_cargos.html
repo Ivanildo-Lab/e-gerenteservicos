@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block titulo_cabecalho %}Cargos e Funções{% endblock %}
+{% block content %}
+<div class="bg-white rounded shadow border-t-4 border-indigo-500">
+    <div class="p-4 border-b flex justify-between items-center">
+        <h3 class="font-bold text-gray-700">Lista de Cargos</h3>
+        <a href="{% url 'rh:novo_cargo' %}" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700 shadow">
+            <i class="fa fa-plus-circle mr-2"></i> Novo Cargo
+        </a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Título</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">CBO</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Salário Base</th>
+                    <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for c in cargos %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 font-medium">{{ c.titulo }}</td>
+                    <td class="px-6 py-4 text-gray-500">{{ c.cbo|default:"-" }}</td>
+                    <td class="px-6 py-4 font-mono text-green-600">R$ {{ c.salario_base|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-center">
+                        <a href="{% url 'rh:editar_cargo' c.id %}" class="text-indigo-600 hover:bg-indigo-100 p-2 rounded-full"><i class="fa fa-edit"></i></a>
+ 
+                        <a href="{% url 'rh:excluir_cargo' c.id %}" 
+                               onclick="return confirm('Tem certeza que deseja excluir o cargo {{ c.titulo }}?')" 
+                               class="text-red-600 hover:bg-red-100 p-2 rounded-full transition" title="Excluir">
+                                <i class="fa fa-trash"></i>
+                        </a>
+
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

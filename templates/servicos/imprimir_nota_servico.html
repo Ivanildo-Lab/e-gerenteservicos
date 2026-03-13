@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Nota de Serviço #{{ pedido.id }}</title>
+    <style>
+        /* Configuração Base para Tela e Impressão */
+        body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            font-size: 12px; /* Reduzido de 14px para 12px */
+            color: #333; 
+            margin: 0; 
+            padding: 0; 
+            background-color: #525659; /* Fundo escuro só na tela do PC */
+        }
+        .container { 
+            max-width: 800px; 
+            margin: 20px auto; 
+            background: #fff;
+            padding: 30px 40px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+        }
+        
+        /* Cabeçalho */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            border-bottom: 2px solid #2c3e50; 
+            padding-bottom: 12px; 
+            margin-bottom: 20px; 
+        }
+        .header h1 { margin: 0; font-size: 20px; color: #2c3e50; text-transform: uppercase; }
+        .header h2 { margin: 0 0 5px 0; font-size: 16px; color: #333; }
+        .header p { margin: 3px 0; font-size: 11px; }
+
+        /* Informações do Cliente */
+        .info-section { margin-bottom: 20px; }
+        .info-box { 
+            padding: 10px 15px; 
+            background-color: #f8f9fa; 
+            border: 1px solid #e9ecef; 
+            border-radius: 4px;
+            font-size: 11px;
+            line-height: 1.5;
+            -webkit-print-color-adjust: exact !important; /* Força cor na impressão */
+            print-color-adjust: exact !important;
+        }
+        .info-box strong { color: #2c3e50; font-size: 12px; display: block; margin-bottom: 5px; border-bottom: 1px solid #ddd; padding-bottom: 3px; }
+
+        /* Tabela de Itens */
+        h3 { font-size: 13px; color: #2c3e50; margin-bottom: 10px; text-transform: uppercase; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 11px; }
+        th, td { border: 1px solid #dee2e6; padding: 6px 8px; }
+        
+        /* Melhoria no Cabeçalho da Tabela para Impressão */
+        th { 
+            background-color: #e9ecef !important; /* Cinza claro */
+            color: #000 !important; /* Letra preta */
+            font-weight: bold; 
+            text-transform: uppercase;
+            text-align: center;
+            -webkit-print-color-adjust: exact !important; /* Força fundo na impressão */
+            print-color-adjust: exact !important;
+        }
+        
+        td { vertical-align: middle; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+
+        /* Seção de Totais */
+        .total-section { 
+            text-align: right; 
+            font-size: 14px; 
+            font-weight: bold; 
+            color: #000;
+            padding: 10px 15px;
+            background-color: #f8f9fa !important;
+            border: 1px solid #dee2e6;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        /* Rodapé */
+        .footer { 
+            margin-top: 30px; 
+            text-align: center; 
+            font-size: 10px; 
+            color: #777; 
+            border-top: 1px solid #eee; 
+            padding-top: 10px; 
+        }
+
+        /* Regras Específicas para a Impressora */
+        @media print {
+            body { background-color: #fff; }
+            .container { 
+                margin: 0; 
+                padding: 0; 
+                border: none; 
+                box-shadow: none; 
+                width: 100%; 
+                max-width: 100%;
+            }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="no-print" style="text-align: right; margin-bottom: 20px;">
+        <button onclick="window.print()" style="background-color: #2c3e50; color: white; border: none; padding: 10px 20px; font-size: 14px; cursor: pointer; border-radius: 4px; font-weight: bold;">🖨️ Imprimir PDF</button>
+    </div>
+
+    <div class="header">
+        <div>
+            <h1>{{ empresa.nome }}</h1>
+            <p>CNPJ: {{ empresa.cnpj|default:"Não informado" }}</p>
+        </div>
+        <div style="text-align: right;">
+            <h2>NOTA DE SERVIÇO</h2>
+            <p><strong>Nº {{ pedido.id }}</strong></p>
+            <p>Data: {{ pedido.data_solicitacao|date:"d/m/Y" }}</p>
+            <p>Status: {{ pedido.get_status_display }}</p>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <div class="info-box">
+            <strong>CLIENTE:</strong>
+            {{ pedido.cliente.nome }}<br>
+            CPF/CNPJ: {{ pedido.cliente.cpf|default:"" }} {{ pedido.cliente.cnpj|default:"" }}<br>
+            {{ pedido.cliente.logradouro }}, {{ pedido.cliente.numero }} - {{ pedido.cliente.cidade }}/{{ pedido.cliente.uf }}
+        </div>
+    </div>
+
+    <h3>Serviços Prestados / Profissionais Alocados</h3>
+    <table>
+        <thead>
+            <tr>
+                <th style="text-align: left;">Profissional</th>
+                <th style="text-align: left;">Serviço</th>
+                <th>Período</th>
+                <th>Qtd</th>
+                <th class="text-right">Valor Unit.</th>
+                <th class="text-right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in alocacoes %}
+            <tr>
+                <td>{{ item.funcionario.nome_completo }}</td>
+                <td>{{ item.servico.nome }}</td>
+                <td class="text-center">{{ item.data_inicio|date:"d/m/y" }} a {{ item.data_fim|date:"d/m/y" }}</td>
+                <!-- Adicionado o filtro floatformat:2 para alinhar as casas decimais -->
+                <td class="text-center">{{ item.quantidade|floatformat:2 }}</td>
+                <td class="text-right">R$ {{ item.valor_unitario|floatformat:2 }}</td>
+                <td class="text-right">R$ {{ item.valor_total_item|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">Nenhum serviço alocado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-section">
+        Total do Pedido: R$ {{ pedido.valor_total|floatformat:2 }}
+    </div>
+
+    <div class="footer">
+        <p>Documento gerado pelo sistema e-GerenteServiços. Válido como recibo/comprovante de prestação de serviços.</p>
+    </div>
+</div>
+
+</body>
+</html>

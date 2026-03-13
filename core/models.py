@@ -43,9 +43,10 @@ class ParametroSistema(ModeloSaaS):
         ('TAXA_JUROS_MENSAL', 'Financeiro - Taxa de Juros Mensal (%)'),
         ('PLANO_CONTAS_MENSALIDADE_ID', 'Financeiro - ID Plano Contas (Mensalidade)'),
         ('PLANO_CONTAS_JUROS_ID', 'Financeiro - ID Plano Contas (Juros/Multa)'),
+        ('PLANO_CONTAS_SERVICOS_ID', 'Financeiro - ID Plano Contas (Serviços Prestados)'),
     ]
 
-    chave = models.CharField(max_length=100, choices=CHAVES_CHOICES)
+    chave = models.CharField(max_length=105, choices=CHAVES_CHOICES)
     valor = models.CharField(max_length=255, help_text="Digite o ID ou o Valor correspondente")
     descricao = models.TextField(blank=True, verbose_name="Descrição / Notas")
 

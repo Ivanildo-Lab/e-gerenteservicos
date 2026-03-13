@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_cabecalho %}
+    {% if form.instance.pk %}Ficha: {{ form.instance.nome_completo }}{% else %}Novo Funcionário{% endif %}
+{% endblock %}
+
+{% block content %}
+<form method="post" enctype="multipart/form-data" class="pb-32" novalidate>
+    {% csrf_token %}
+    
+    <!-- AVISO DE ERROS (Para você saber se o Django barrou algo) -->
+    {% if form.errors or formset.errors %}
+    <div class="bg-red-100 border-l-4 border-red-500 p-4 mb-6 shadow-md">
+        <div class="flex">
+            <i class="fa fa-exclamation-triangle text-red-600 text-xl"></i>
+            <div class="ml-3">
+                <h3 class="text-sm font-bold text-red-800 uppercase">Atenção! Verifique os erros:</h3>
+                <ul class="list-disc list-inside text-xs text-red-700 mt-1">
+                    {% for field in form %}{% if field.errors %}<li><strong>{{ field.label }}:</strong> {{ field.errors|striptags }}</li>{% endif %}{% endfor %}
+                    {% for f in formset %}{% if f.errors %}<li><strong>Ocorrência #{{ forloop.counter }}:</strong> {{ f.errors|striptags }}</li>{% endif %}{% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- COLUNA ESQUERDA (9 COLUNAS) -->
+        <div class="lg:col-span-9 space-y-6">
+            
+            <!-- BLOCO 1: IDENTIFICAÇÃO -->
+            <div class="bg-white rounded shadow border-t-4 border-blue-500 p-6">
+                <h3 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider border-b pb-2">
+                    <i class="fa fa-user mr-2 text-blue-500"></i> Identificação Pessoal
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div class="md:col-span-7"><label class="text-[10px] font-bold uppercase text-gray-400">Nome Completo</label>{{ form.nome_completo }}</div>
+                    <div class="md:col-span-5"><label class="text-[10px] font-bold uppercase text-gray-400">E-mail Pessoal</label>{{ form.email }}</div>
+                    <div class="md:col-span-3"><label class="text-[10px] font-bold uppercase text-gray-400">Nascimento</label>{{ form.data_nascimento }}</div>
+                    <div class="md:col-span-3"><label class="text-[10px] font-bold uppercase text-gray-400">Estado Civil</label>{{ form.estado_civil }}</div>
+                    <div class="md:col-span-3"><label class="text-[10px] font-bold uppercase text-gray-400">Nacionalidade</label>{{ form.nacionalidade }}</div>
+                    <div class="md:col-span-3"><label class="text-[10px] font-bold uppercase text-gray-400">Naturalidade</label>{{ form.naturalidade }}</div>
+                    <div class="md:col-span-6"><label class="text-[10px] font-bold uppercase text-gray-400">Nome da Mãe</label>{{ form.nome_mae }}</div>
+                    <div class="md:col-span-6"><label class="text-[10px] font-bold uppercase text-gray-400">Nome do Pai</label>{{ form.nome_pai }}</div>
+                </div>
+            </div>
+
+            <!-- BLOCO 2: DOCUMENTAÇÃO -->
+            <div class="bg-white rounded shadow border-t-4 border-indigo-500 p-6">
+                <h3 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider border-b pb-2">
+                    <i class="fa fa-file-invoice mr-2 text-indigo-500"></i> Documentação
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">CPF</label>{{ form.cpf }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">RG</label>{{ form.rg }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Órgão Emissor</label>{{ form.rg_orgao }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">PIS/PASEP</label>{{ form.pis }}</div>
+                    <div class="md:col-span-2"><label class="text-[10px] font-bold uppercase text-gray-400">Nº CTPS</label>{{ form.ctps_numero }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Série</label>{{ form.ctps_serie }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">UF CTPS</label>{{ form.ctps_uf }}</div>
+                    <div class="md:col-span-2"><label class="text-[10px] font-bold uppercase text-gray-400">Nº CNH</label>{{ form.cnh_numero }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Cat. CNH</label>{{ form.cnh_categoria }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Validade CNH</label>{{ form.cnh_validade }}</div>
+                </div>
+            </div>
+
+            <!-- BLOCO 3: LOCALIZAÇÃO -->
+            <div class="bg-white rounded shadow border-t-4 border-cyan-500 p-6">
+                <h3 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider border-b pb-2">
+                    <i class="fa fa-map-marker-alt mr-2 text-cyan-500"></i> Endereço e Contato
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <div class="md:col-span-3"><label class="text-[10px] font-bold uppercase text-gray-400">CEP</label>{{ form.cep }}</div>
+                    <div class="md:col-span-7"><label class="text-[10px] font-bold uppercase text-gray-400">Rua/Av</label>{{ form.logradouro }}</div>
+                    <div class="md:col-span-2"><label class="text-[10px] font-bold uppercase text-gray-400">Nº</label>{{ form.numero }}</div>
+                    <div class="md:col-span-4"><label class="text-[10px] font-bold uppercase text-gray-400">Bairro</label>{{ form.bairro }}</div>
+                    <div class="md:col-span-5"><label class="text-[10px] font-bold uppercase text-gray-400">Cidade</label>{{ form.cidade }}</div>
+                    <div class="md:col-span-3"><label class="text-[10px] font-bold uppercase text-gray-400">UF</label>{{ form.uf }}</div>
+                    <div class="md:col-span-6"><label class="text-[10px] font-bold uppercase text-gray-400">WhatsApp</label>{{ form.telefone_celular }}</div>
+                    <div class="md:col-span-6"><label class="text-[10px] font-bold uppercase text-gray-400">Fixo</label>{{ form.telefone_fixo }}</div>
+                </div>
+            </div>
+
+            <!-- BLOCO 4: OCORRÊNCIAS -->
+            <div class="bg-white rounded shadow border-t-4 border-red-500 p-6">
+                <h3 class="text-sm font-bold text-gray-700 mb-6 uppercase tracking-wider border-b pb-3">
+                    <i class="fa fa-clipboard-list mr-2 text-red-500"></i> Prontuário de Atividades
+                </h3>
+
+                {{ formset.management_form }}
+                <div id="ocorrencias-container" class="space-y-4">
+                    {% for ocor_form in formset %}
+                    <div class="p-4 rounded-lg border js-container-ocorrencia {% if ocor_form.instance.pk %}bg-gray-50 border-gray-200{% else %}bg-blue-50/30 border-dashed border-blue-300{% endif %}">
+                        {{ ocor_form.id }}
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                            <div class="md:col-span-3 space-y-3">
+                                <div><label class="text-[9px] font-black uppercase text-gray-400 block">Data</label>{{ ocor_form.data }}</div>
+                                <div><label class="text-[9px] font-black uppercase text-gray-400 block">Tipo</label>{{ ocor_form.tipo }}</div>
+                            </div>
+                            <div class="md:col-span-5">
+                                <label class="text-[9px] font-black uppercase text-gray-400 block">Descrição</label>
+                                {{ ocor_form.descricao }}
+                            </div>
+                            <div class="md:col-span-3 flex flex-col items-center">
+                                <label class="text-[9px] font-black uppercase text-gray-400 block mb-1">Anexo</label>
+                                
+                                <!-- ÁREA DE UPLOAD (LABEL + INPUT HIDDEN) -->
+                                <label class="cursor-pointer w-full group">
+                                    <div class="h-20 w-full bg-white border-2 border-dashed border-gray-300 rounded flex flex-col items-center justify-center overflow-hidden hover:border-indigo-500 transition relative">
+                                        <div class="js-preview-placeholder w-full h-full flex flex-col items-center justify-center">
+                                            {% if ocor_form.instance.documento %}
+                                                {% if ".pdf" in ocor_form.instance.documento.url|lower %}
+                                                    <i class="fa fa-file-pdf text-2xl text-red-500"></i>
+                                                    <span class="text-[8px] font-bold mt-1">PDF ATUAL</span>
+                                                {% else %}
+                                                    <img src="{{ ocor_form.instance.documento.url }}" class="w-full h-full object-cover opacity-60">
+                                                {% endif %}
+                                            {% else %}
+                                                <i class="fa fa-cloud-upload-alt text-xl text-gray-300"></i>
+                                                <span class="text-[8px] text-gray-400 mt-1 uppercase">Anexar</span>
+                                            {% endif %}
+                                        </div>
+                                        <img class="js-img-preview-novo hidden w-full h-full object-cover absolute inset-0">
+                                    </div>
+                                    <!-- AQUI ENTRA O INPUT (agora com class 'hidden' injetada pelo forms.py) -->
+                                    {{ ocor_form.documento }}
+                                </label>
+                                
+                                {% if ocor_form.instance.documento %}
+                                <div class="mt-2 flex items-center bg-red-50 px-2 py-1 rounded border border-red-100">
+                                    <input type="checkbox" name="{{ ocor_form.prefix }}-documento-clear" id="{{ ocor_form.prefix }}-documento-clear_id" style="width: 1.1rem; height: 1.1rem; accent-color: #ef4444; cursor: pointer;">
+                                    <label for="{{ ocor_form.prefix }}-documento-clear_id" class="text-[9px] text-red-600 font-bold ml-1 cursor-pointer">LIMPAR</label>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="md:col-span-1 text-center border-l border-gray-200">
+                                <label class="text-[9px] font-black uppercase text-red-400 block mb-2">Excluir</label>
+                                {{ ocor_form.DELETE }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUNA DIREITA (3 COLUNAS) -->
+        <div class="lg:col-span-3 space-y-6">
+            
+            <!-- FOTO -->
+            <div class="bg-white rounded shadow border-t-4 border-green-500 p-4 js-container-foto">
+                <h3 class="text-xs font-bold uppercase text-gray-500 mb-4 text-center">Foto do Perfil</h3>
+                <div class="flex flex-col items-center">
+                    
+                    <!-- ÁREA DE UPLOAD -->
+                    <label class="cursor-pointer group relative block w-32 h-32">
+                        <div class="w-full h-full rounded-full border-4 border-gray-100 shadow-lg overflow-hidden bg-gray-50 flex items-center justify-center group-hover:border-indigo-400 transition">
+                            <div id="img-placeholder" class="{% if form.instance.foto %}hidden{% endif %}"><i class="fa fa-user text-5xl text-gray-300"></i></div>
+                            <img id="img-preview" src="{% if form.instance.foto %}{{ form.instance.foto.url }}{% endif %}" class="{% if not form.instance.foto %}hidden{% endif %} w-full h-full object-cover">
+                            <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/20 rounded-full"><i class="fa fa-camera text-white text-xl"></i></div>
+                        </div>
+                        
+                        <!-- AQUI ENTRA O INPUT (agora com class 'hidden' injetada pelo forms.py) -->
+                        {{ form.foto }}
+                    </label>
+
+                    {% if form.instance.foto %}
+                    <div class="mt-4 flex items-center bg-red-50 px-3 py-1 rounded border border-red-100">
+                        <input type="checkbox" name="foto-clear" id="foto-clear_id" style="width: 1.1rem; height: 1.1rem; accent-color: #ef4444; cursor: pointer;">
+                        <label for="foto-clear_id" class="text-[10px] text-red-600 font-bold ml-2 cursor-pointer">REMOVER FOTO</label>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- CONTRATO -->
+            <div class="bg-white rounded shadow border-t-4 border-yellow-500 p-4 space-y-3">
+                <h3 class="text-xs font-bold uppercase text-gray-500 border-b pb-2">Contrato</h3>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase">Cargo</label>{{ form.cargo }}</div>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase">Tipo</label>{{ form.tipo_contrato }}</div>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase">Admissão</label>{{ form.data_admissao }}</div>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase">Salário</label>{{ form.salario_contratual }}</div>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase">Situação</label>{{ form.situacao }}</div>
+            </div>
+
+            <!-- BANCÁRIO -->
+            <div class="bg-white rounded shadow border-t-4 border-gray-700 p-4 space-y-3">
+                <h3 class="text-xs font-bold uppercase text-gray-500 border-b pb-2">Pagamento</h3>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase">Banco</label>{{ form.banco }}</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase">Agência</label>{{ form.agencia }}</div>
+                    <div><label class="text-[10px] font-bold text-gray-400 uppercase">Conta</label>{{ form.conta }}</div>
+                </div>
+                <div><label class="text-[10px] font-bold text-gray-400 uppercase">Chave PIX</label>{{ form.pix }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOTÕES FIXOS -->
+    <div class="fixed bottom-0 right-0 left-0 md:left-64 bg-white/90 backdrop-blur p-4 shadow-2xl border-t flex justify-end space-x-4 z-50">
+        <a href="{% url 'rh:lista_funcionarios' %}" class="px-8 py-2 border rounded text-gray-600 font-bold hover:bg-gray-100">CANCELAR</a>
+        <button type="submit" class="px-12 py-2 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700 shadow-lg">
+            SALVAR FICHA
+        </button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        
+        fileInputs.forEach(input => {
+            input.onchange = function () {
+                const [file] = this.files;
+                if (!file) return;
+
+                const containerOcorrencia = this.closest('.js-container-ocorrencia');
+                const containerFoto = this.closest('.js-container-foto');
+
+                if (containerOcorrencia) {
+                    const imgNovo = containerOcorrencia.querySelector('.js-img-preview-novo');
+                    const placeholder = containerOcorrencia.querySelector('.js-preview-placeholder');
+                    
+                    if (file.type.startsWith('image/')) {
+                        imgNovo.src = URL.createObjectURL(file);
+                        imgNovo.classList.remove('hidden');
+                        placeholder.classList.add('hidden');
+                    } else {
+                        placeholder.innerHTML = '<i class="fa fa-file-pdf text-2xl text-green-500 animate-pulse"></i><span class="text-[8px] font-bold text-green-600 mt-1 uppercase">Doc Selecionado</span>';
+                        placeholder.classList.remove('hidden');
+                        imgNovo.classList.add('hidden');
+                    }
+                } else if (containerFoto) {
+                    const imgPreview = document.getElementById('img-preview');
+                    const imgPlaceholder = document.getElementById('img-placeholder');
+                    imgPreview.src = URL.createObjectURL(file);
+                    imgPreview.classList.remove('hidden');
+                    imgPlaceholder.classList.add('hidden');
+                }
+            };
+        });
+    });
+</script>
+{% endblock %}

@@ -6,10 +6,13 @@ from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('servicos/', include('servicos.urls')),
+    path('rh/', include('rh.urls')),
     
     # Rotas dos Apps
     path('cadastros/', include('cadastros.urls')),
     path('financeiro/', include('financeiro.urls')),
+    
     
     # O App WEB assume a raiz do site
     path('', include('web.urls')),

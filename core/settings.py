@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'core',
     'cadastros',
     'financeiro',
+    'rh',
+    'servicos',
     'web',
 
 ]
@@ -95,7 +97,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'efinanceiro_db',  # O banco que combinamos
+        'NAME': 'egerenteservicos_db',  # O banco que combinamos
         'USER': 'root',            # Seu usuário do MySQL (geralmente root)
         'PASSWORD': '7895123',            # Sua senha do MySQL (preencha aqui)
         'HOST': 'localhost',
@@ -129,6 +131,9 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'pt-br' 
 
 TIME_ZONE = 'America/Sao_Paulo'
+
+USE_L10N = True
+USE_THOUSAND_SEPARATOR = True
 
 USE_I18N = True
 

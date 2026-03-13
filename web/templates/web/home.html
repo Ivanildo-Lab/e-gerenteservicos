@@ -42,7 +42,7 @@
                 {% if user.is_authenticated %}
                     {{ user.empresa.nome }}
                 {% else %}
-                    e-FINANCEIRO <span class="text-blue-400">SaaS</span>
+                    GERENCIA DE SERVIÇOS <span class="text-blue-400">SaaS</span>
                 {% endif %}
             </span>
         </div>
@@ -93,12 +93,12 @@
 
         {% else %}
             <h1 class="text-5xl md:text-7xl font-extrabold mb-6 text-shadow">
-                O Controle Financeiro <br>
+                O Controle de funcionários e serviços <br>
                 que sua empresa merece.
             </h1>
             
             <p class="text-lg md:text-xl text-gray-300 mb-10 max-w-2xl mx-auto text-shadow">
-                Uma plataforma completa, multiempresa e segura para gerenciar suas contas a pagar, receber e fluxo de caixa.
+                Uma plataforma completa, multiempresa e segura para gerenciar suas contas a pagar, receber, funcionarios, serviços e fluxo de caixa.
             </p>
 
             <a href="{% url 'login' %}" class="group px-8 py-4 bg-white text-gray-900 font-bold rounded-full shadow-lg hover:bg-gray-100 transition-all duration-300 transform hover:-translate-y-1">
@@ -113,7 +113,7 @@
 
     <!-- FOOTER -->
     <footer class="relative z-20 w-full py-6 text-center text-gray-400 text-xs">
-        <p>&copy; {% now "Y" %} <strong>e-Financeiro SaaS</strong>. Todos os direitos reservados.</p>
+        <p>&copy; {% now "Y" %} <strong>Gerencia de Serviços SaaS</strong>. Todos os direitos reservados.</p>
     </footer>
 
 </body>

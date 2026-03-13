@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_cabecalho %}
+    {% if form.instance.pk %}Editar Cargo{% else %}Novo Cargo{% endif %}
+{% endblock %}
+{% block subtitulo_cabecalho %}Definição de funções e salários base{% endblock %}
+{% block breadcrumb %}RH / Cargos / Form{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Erros do Formulário -->
+        {% if form.errors %}
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 shadow-sm">
+            <div class="flex">
+                <i class="fa fa-exclamation-circle text-red-500 mt-1"></i>
+                <div class="ml-3">
+                    <h3 class="text-sm font-bold text-red-800">Atenção:</h3>
+                    <ul class="list-disc list-inside text-xs text-red-700">
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- CAIXA DO FORMULÁRIO -->
+        <div class="bg-white rounded shadow border-t-4 border-indigo-500">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-bold text-gray-700">Dados do Cargo</h3>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Título do Cargo -->
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Título do Cargo / Função</label>
+                        {{ form.titulo }}
+                        <p class="text-[10px] text-gray-400 mt-1">Ex: Mecânico Industrial, Motorista Categoria D, etc.</p>
+                    </div>
+
+                    <!-- CBO -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Código CBO</label>
+                        {{ form.cbo }}
+                        <p class="text-[10px] text-gray-400 mt-1">Classificação Brasileira de Ocupações</p>
+                    </div>
+
+                    <!-- Salário Base -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Salário Base (R$)</label>
+                        {{ form.salario_base }}
+                        <p class="text-[10px] text-gray-400 mt-1">Valor sugerido para novos funcionários</p>
+                    </div>
+
+                    <!-- Descrição -->
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Descrição das Atividades</label>
+                        {{ form.descricao }}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTÕES DE AÇÃO -->
+        <div class="flex items-center justify-start space-x-4 bg-gray-50 p-4 rounded border shadow-sm">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-8 rounded shadow-lg transition duration-200 flex items-center">
+                <i class="fa fa-save mr-2"></i> SALVAR CARGO
+            </button>
+            <a href="{% url 'rh:lista_cargos' %}" class="bg-white border border-gray-300 text-gray-700 font-bold py-2 px-8 rounded hover:bg-gray-100 transition duration-200">
+                Cancelar
+            </a>
+        </div>
+    </form>
+</div>
+{% endblock %}

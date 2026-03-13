@@ -36,23 +36,19 @@ class Cadastro(ModeloSaaS):
     # --- Identificação ---
     tipo_pessoa = models.CharField(max_length=2, choices=TIPO_PESSOA_CHOICES, default='PF', verbose_name="Tipo de Pessoa")
     
-    # PF e PJ compartilham o campo 'nome' (PF = Nome Completo, PJ = Nome Fantasia)
     nome = models.CharField(max_length=255, verbose_name="Nome / Nome Fantasia")
+    razao_social = models.CharField(max_length=255, blank=True, null=True, verbose_name="Razão Social (PJ)")
     
-    # Exclusivo PJ
-    razao_social = models.CharField(max_length=255, blank=True, null=True, verbose_name="Razão Social")
+    # --- DOCUMENTOS SEPARADOS ---
+    cpf = models.CharField(max_length=14, blank=True, null=True, verbose_name="CPF")
+    cnpj = models.CharField(max_length=18, blank=True, null=True, verbose_name="CNPJ")
     
-    # Documentos
-    cpf_cnpj = models.CharField(max_length=20, verbose_name="CPF ou CNPJ")
-    
-    # Separando os documentos
     rg = models.CharField(max_length=20, blank=True, null=True, verbose_name="RG (Apenas PF)")
-    inscricao_estadual = models.CharField(max_length=20, blank=True, null=True, verbose_name="Inscrição Estadual (PJ ou Produtor Rural)")
+    inscricao_estadual = models.CharField(max_length=20, blank=True, null=True, verbose_name="Inscrição Estadual (PJ)")
     
-    # Flag para Produtor Rural (Permite IE mesmo sendo PF)
     is_produtor_rural = models.BooleanField(default=False, verbose_name="Produtor Rural?")
     
-    # --- Dados Legados (Mantidos para não quebrar o que já fizemos) ---
+    # --- Dados Legados ---
     num_registro = models.IntegerField(verbose_name="Nº Registro", null=True, blank=True)
     data_nascimento = models.DateField(verbose_name="Data de Nascimento / Fundação", null=True, blank=True)
     
@@ -61,9 +57,11 @@ class Cadastro(ModeloSaaS):
     celular = models.CharField(max_length=20, blank=True)
     telefone_fixo = models.CharField(max_length=20, blank=True)
     
-    # --- Endereço ---
+    # --- Endereço COMPLETO ---
     cep = models.CharField(max_length=9, blank=True)
-    endereco = models.CharField(max_length=255, blank=True)
+    logradouro = models.CharField(max_length=255, blank=True, verbose_name="Endereço (Rua/Av)")
+    numero = models.CharField(max_length=20, blank=True, null=True, verbose_name="Número")
+    complemento = models.CharField(max_length=100, blank=True, null=True, verbose_name="Complemento")
     bairro = models.CharField(max_length=100, blank=True)
     cidade = models.CharField(max_length=100, blank=True)
     uf = models.CharField(max_length=2, blank=True)
@@ -79,4 +77,8 @@ class Cadastro(ModeloSaaS):
         verbose_name = "Cadastro"
         verbose_name_plural = "Cadastros"
         ordering = ['nome']
-        unique_together = [['empresa', 'cpf_cnpj']] # CPF/CNPJ único por empresa
+        # Garante unicidade por empresa (não pode ter 2 clientes com mesmo CPF na mesma empresa)
+        constraints = [
+            models.UniqueConstraint(fields=['empresa', 'cpf'], name='unique_cpf_por_empresa'),
+            models.UniqueConstraint(fields=['empresa', 'cnpj'], name='unique_cnpj_por_empresa')
+        ]

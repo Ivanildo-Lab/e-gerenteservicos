@@ -1,0 +1,157 @@
+================================================================================
+                        ESTRUTURA DO PROJETO
+                       e-gerenteservicos
+================================================================================
+
+RAIZ DO PROJETO
+├── manage.py                    # Script de gerenciamento Django
+├── README.md                    # Documentação do projeto
+├── requirements.txt             # Dependências do projeto
+└── ESTRUTURA_PROJETO.txt       # Este arquivo
+
+================================================================================
+APLICAÇÕES DJANGO
+================================================================================
+
+CADASTROS/ - Gerenciamento de cadastros (clientes, fornecedores, etc)
+├── __init__.py
+├── admin.py                     # Configurações do admin
+├── apps.py                      # Configuração da aplicação
+├── forms.py                     # Formulários
+├── models.py                    # Modelos de dados
+├── tests.py                     # Testes unitários
+├── urls.py                      # Rotas de URL
+├── views.py                     # Lógicas das views
+├── __pycache__/                 # Cache Python compilado
+├── migrations/                  # Migrações do banco de dados
+│   ├── __init__.py
+│   ├── 0001_initial.py
+│   ├── 0002_remove_cadastro_rg_ie_cadastro_inscricao_estadual_and_more.py
+│   └── __pycache__/
+└── templates/cadastros/         # Templates HTML
+    ├── formulario.html
+    ├── lista_clientes.html
+    ├── lista_fornecedores.html
+    └── lista.html
+
+CORE/ - Configurações principais do projeto
+├── __init__.py
+├── admin.py                     # Configurações do admin
+├── apps.py                      # Configuração da aplicação
+├── asgi.py                      # Configuração ASGI (produção)
+├── forms.py                     # Formulários
+├── models.py                    # Modelos de dados
+├── settings.py                  # Configurações do Django
+├── urls.py                      # Rotas de URL (principais)
+├── views.py                     # Lógicas das views
+├── wsgi.py                      # Configuração WSGI (produção)
+├── __pycache__/                 # Cache Python compilado
+├── migrations/                  # Migrações do banco de dados
+│   ├── __init__.py
+│   ├── 0001_initial.py
+│   ├── 0002_empresa_banner_empresa_logo.py
+│   ├── 0003_parametrosistema.py
+│   └── __pycache__/
+└── templates/core/              # Templates HTML
+    ├── configuracoes.html
+    └── parametro_form.html
+
+FINANCEIRO/ - Gerenciamento financeiro e contábil
+├── __init__.py
+├── admin.py                     # Configurações do admin
+├── apps.py                      # Configuração da aplicação
+├── forms.py                     # Formulários
+├── models.py                    # Modelos de dados
+├── tests.py                     # Testes unitários
+├── urls.py                      # Rotas de URL
+├── views.py                     # Lógicas das views
+├── __pycache__/                 # Cache Python compilado
+├── migrations/                  # Migrações do banco de dados
+│   ├── __init__.py
+│   ├── 0001_initial.py
+│   ├── 0002_conta_documento.py
+│   ├── 0003_alter_planodecontas_unique_together.py
+│   └── __pycache__/
+└── templates/financeiro/        # Templates HTML
+    ├── caixa_form.html
+    ├── caixa_list.html
+    ├── conta_form.html
+    ├── contas_lista.html
+    ├── fluxo_lista.html
+    ├── lancamento_form.html
+    ├── plano_de_contas_form.html
+    ├── plano_de_contas_list.html
+    ├── relatorio_contas_impresso.html
+    ├── relatorio_dre_sintetico.html
+    ├── relatorio_dre.html
+    └── relatorio_impresso.html
+
+WEB/ - Interface web e autenticação
+├── __init__.py
+├── admin.py                     # Configurações do admin
+├── apps.py                      # Configuração da aplicação
+├── forms.py                     # Formulários
+├── models.py                    # Modelos de dados
+├── tests.py                     # Testes unitários
+├── urls.py                      # Rotas de URL
+├── views.py                     # Lógicas das views
+├── __pycache__/                 # Cache Python compilado
+├── migrations/                  # Migrações do banco de dados
+│   ├── __init__.py
+│   └── __pycache__/
+└── templates/web/               # Templates HTML
+    ├── registration/
+    │   └── login.html
+    ├── dashboard.html
+    └── home.html
+
+================================================================================
+DIRETÓRIOS DE SUPORTE
+================================================================================
+
+EMPRESAS/                        # Logotipos e banners de empresas
+├── banners/                     # Armazena banners das empresas
+└── logos/                       # Armazena logos das empresas
+
+FOTOS_CADASTROS/                 # Fotos dos cadastros
+
+MEDIA/                           # Arquivos de mídia (uploads)
+├── empresas/
+│   ├── banners/
+│   └── logos/
+└── fotos_cadastros/
+
+STATIC/                          # Arquivos estáticos (CSS, JS, imagens)
+└── img/                         # Imagens estáticas
+
+TEMPLATES/                       # Templates base HTML
+└── base.html                    # Template base do projeto
+
+================================================================================
+RESUMO DO PROJETO
+================================================================================
+
+TIPO: Projeto Django
+NOME: e-gerenteservicos
+DESCRIÇÃO: Sistema de gerenciamento de serviços com módulos de:
+           - Cadastro de clientes e fornecedores
+           - Gestão financeira e contábil
+           - Geração de relatórios
+           - Autenticação de usuários
+           - Configurações do sistema
+
+APLICAÇÕES PRINCIPAIS:
+1. cadastros  - Gerenciamento de pessoas (clientes, fornecedores)
+2. core       - Configurações centrais do sistema
+3. financeiro - Movimentações financeiras e contabilidade
+4. web        - Interface web, autenticação e dashboard
+
+ESTRUTURA DE ARQUIVOS:
+- Padrão MVT Django (Models, Views, Templates)
+- URLs organizadas por aplicação
+- Forms para validação de dados
+- Templates por aplicação
+- Migrações por aplicação
+- Admin Django configurado
+
+================================================================================

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block titulo_cabecalho %}Catálogo de Serviço{% endblock %}
+{% block breadcrumb %}Catálogo / Novo{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto bg-white rounded shadow border-t-4 border-blue-500">
+    <div class="p-6">
+        <form method="post">
+            {% csrf_token %}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Nome do Serviço</label>
+                    {{ form.nome }}
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Descrição</label>
+                    {{ form.descricao }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Unidade de Medida</label>
+                    {{ form.unidade }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Valor Base (R$)</label>
+                    {{ form.valor_base }}
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <a href="{% url 'servicos:lista_catalogo' %}" class="bg-gray-200 px-4 py-2 rounded text-gray-700">Cancelar</a>
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 shadow">Salvar Serviço</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

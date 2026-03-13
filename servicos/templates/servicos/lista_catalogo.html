@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block titulo_cabecalho %}Catálogo de Serviços{% endblock %}
+{% block subtitulo_cabecalho %}Preços e Serviços Disponíveis{% endblock %}
+{% block breadcrumb %}Serviços / Catálogo{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded shadow border-t-4 border-blue-400">
+    
+    <!-- HEADER -->
+    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-700">Serviços Disponíveis</h3>
+        <a href="{% url 'servicos:lista_pedidos' %}" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition flex items-center shadow-sm">
+            <i class="fa fa-arrow-left mr-2"></i> Voltar para Pedidos
+        </a>
+    </div>
+    
+    <!-- GRID DE SERVIÇOS -->
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for s in catalogo %}
+        <div class="border rounded-lg p-5 shadow-sm hover:shadow-md transition-all bg-gray-50 border-gray-200 flex flex-col justify-between">
+            <div>
+                <div class="text-blue-600 font-bold uppercase text-[10px] mb-1 tracking-widest">
+                    Cobrança: {{ s.get_unidade_display|default:s.unidade }}
+                </div>
+                <h4 class="text-lg font-bold text-gray-800 mb-2">{{ s.nome }}</h4>
+                <div class="text-3xl font-mono font-black text-gray-700 mb-4">
+                    R$ {{ s.valor_base|floatformat:2 }}
+                </div>
+                <p class="text-gray-500 text-xs italic leading-relaxed">
+                    {{ s.descricao|default:"Sem descrição detalhada cadastrada para este serviço." }}
+                </p>
+            </div>
+            
+            <div class="mt-4 pt-4 border-t border-gray-200">
+                <span class="text-[10px] text-gray-400 uppercase font-semibold">Cód. Interno: #{{ s.id }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-16 text-center text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
+            <i class="fa fa-folder-open text-4xl mb-3 block text-gray-300"></i>
+            <p class="italic">O catálogo de serviços desta empresa ainda está vazio.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

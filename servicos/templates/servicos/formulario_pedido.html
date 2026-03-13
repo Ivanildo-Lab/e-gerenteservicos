@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block titulo_cabecalho %}Pedido de Serviço / Ordem de Serviço{% endblock %}
+
+{% block content %}
+<form method="post" class="space-y-6">
+    {% csrf_token %}
+    
+    <!-- CABEÇALHO DO PEDIDO -->
+    <div class="bg-white rounded shadow border-t-4 border-green-500 p-6">
+        <h3 class="text-lg font-bold mb-4 border-b pb-2">Dados da Solicitação</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase">Cliente</label>
+                {{ form.cliente }}
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase">Data</label>
+                {{ form.data_solicitacao }}
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase">Status</label>
+                {{ form.status }}
+            </div>
+            <div class="md:col-span-3">
+                <label class="block text-xs font-bold text-gray-500 uppercase">Observações Internas</label>
+                {{ form.observacoes }}
+            </div>
+        </div>
+    </div>
+
+    <!-- ITENS DO PEDIDO (ALOCAÇÕES) -->
+    <div class="bg-white rounded shadow border-t-4 border-blue-400 p-6">
+        <h3 class="text-lg font-bold mb-4 border-b pb-2">Profissionais e Serviços Alocados</h3>
+        {{ formset.management_form }}
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-600">
+                        <th class="p-2 text-left">Serviço</th>
+                        <th class="p-2 text-left">Funcionário</th>
+                        <th class="p-2 text-left">Início</th>
+                        <th class="p-2 text-left">Fim</th>
+                        <th class="p-2 text-center w-20">Qtd</th>
+                        <th class="p-2 text-right w-32">Vlr Unit.</th>
+                        <th class="p-2 text-center">Remover</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item_form in formset %}
+                    <tr class="border-b">
+                        <td class="p-1">{{ item_form.servico }}{{ item_form.id }}</td>
+                        <td class="p-1">{{ item_form.funcionario }}</td>
+                        <td class="p-1">{{ item_form.data_inicio }}</td>
+                        <td class="p-1">{{ item_form.data_fim }}</td>
+                        <td class="p-1 text-center">{{ item_form.quantidade }}</td>
+                        <td class="p-1 text-right">{{ item_form.valor_unitario }}</td>
+                        <td class="p-1 text-center text-red-500">{{ item_form.DELETE }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="flex justify-between items-center bg-gray-50 p-4 rounded shadow border">
+        <a href="{% url 'servicos:lista_pedidos' %}" class="text-gray-600 font-bold">Voltar</a>
+        <button type="submit" class="bg-green-600 text-white px-10 py-3 rounded-lg font-bold hover:bg-green-700 shadow-lg transition">
+            <i class="fa fa-save mr-2"></i> SALVAR PEDIDO / GERAR OS
+        </button>
+    </div>
+</form>
+{% endblock %}

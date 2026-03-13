@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>e-Financeiro SaaS</title>
+    <title>e-gerente serviços SaaS</title>
     
     <!-- Favicon -->
     <link rel="shortcut icon" type="image/png" href="{% static 'img/favicon.png' %}">
@@ -36,7 +36,7 @@
     <aside class="w-64 skin-blue-sidebar text-white flex flex-col shadow-xl transition-all duration-300 hidden md:flex flex-shrink-0">
         <!-- Logo -->
         <div class="h-14 skin-blue-logo flex items-center justify-center font-bold text-xl tracking-wider uppercase shadow-md z-20">
-            <span class="mr-2"><i class="fa fa-chart-line"></i></span> e-Financ.
+            <span class="mr-2"><i class="fa fa-chart-line"></i></span> Gerente Serviços.
         </div>
 
         <!-- Painel do Usuário -->
@@ -127,7 +127,7 @@
                         </li>
                     </ul>
                 </li>
-<!-- 4. RELATÓRIOS (NOVO MENU) -->
+                 <!-- 4. RELATÓRIOS (NOVO MENU) -->
                 <li>
                     <button type="button" onclick="toggleMenu('relatorios-menu')" class="w-full flex items-center justify-between py-3 px-4 text-gray-300 hover:text-white sidebar-hover transition-all focus:outline-none {% if '/relatorios/' in request.path %}text-white bg-black/10{% endif %}">
                         <div class="flex items-center">
@@ -149,6 +149,53 @@
 
                     </ul>
                 </li>
+<!-- 5. RECURSOS HUMANOS (NOVO MENU) -->
+                <li>
+                    <button type="button" onclick="toggleMenu('rh-menu')" class="w-full flex items-center justify-between py-3 px-4 text-gray-300 hover:text-white sidebar-hover transition-all focus:outline-none {% if '/rh/' in request.path %}text-white bg-black/10{% endif %}">
+                        <div class="flex items-center">
+                            <i class="fa fa-id-card w-6 text-center text-lg"></i>
+                            <span class="ml-2 font-medium">Recursos Humanos</span>
+                        </div>
+                        <i id="rh-arrow" class="fa fa-angle-right transition-transform duration-200 text-xs {% if '/rh/' in request.path %}rotate-90{% endif %}"></i>
+                    </button>
+                    
+                    <ul id="rh-menu" class="bg-black/20 overflow-hidden transition-all duration-300 {% if '/rh/' not in request.path %}hidden{% endif %}">
+                        <li>
+                            <a href="{% url 'rh:lista_funcionarios' %}" class="flex items-center py-2 pl-12 pr-4 text-gray-400 hover:text-white text-xs hover:bg-white/5 border-l-2 border-transparent hover:border-blue-400 {% if 'funcionarios' in request.path %}text-white font-bold{% endif %}">
+                                <i class="fa fa-users mr-2 w-3"></i> Funcionários
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'rh:lista_cargos' %}" class="flex items-center py-2 pl-12 pr-4 text-gray-400 hover:text-white text-xs hover:bg-white/5 border-l-2 border-transparent hover:border-blue-400 {% if 'cargos' in request.path %}text-white font-bold{% endif %}">
+                                <i class="fa fa-briefcase mr-2 w-3"></i> Cargos
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- 6. SERVIÇOS (NOVO MENU) -->
+                <li>
+                    <button type="button" onclick="toggleMenu('servicos-menu')" class="w-full flex items-center justify-between py-3 px-4 text-gray-300 hover:text-white sidebar-hover transition-all focus:outline-none {% if '/servicos/' in request.path %}text-white bg-black/10{% endif %}">
+                        <div class="flex items-center">
+                            <i class="fa fa-tools w-6 text-center text-lg"></i>
+                            <span class="ml-2 font-medium">Serviços</span>
+                        </div>
+                        <i id="servicos-arrow" class="fa fa-angle-right transition-transform duration-200 text-xs {% if '/servicos/' in request.path %}rotate-90{% endif %}"></i>
+                    </button>
+                    
+                    <ul id="servicos-menu" class="bg-black/20 overflow-hidden transition-all duration-300 {% if '/servicos/' not in request.path %}hidden{% endif %}">
+                        <li>
+                            <a href="{% url 'servicos:lista_pedidos' %}" class="flex items-center py-2 pl-12 pr-4 text-gray-400 hover:text-white text-xs hover:bg-white/5 border-l-2 border-transparent hover:border-green-400 {% if 'pedidos' in request.path %}text-white font-bold{% endif %}">
+                                <i class="fa fa-clipboard-list mr-2 w-3 text-green-400"></i> Pedidos / OS
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'servicos:lista_catalogo' %}" class="flex items-center py-2 pl-12 pr-4 text-gray-400 hover:text-white text-xs hover:bg-white/5 border-l-2 border-transparent hover:border-blue-400 {% if 'catalogo' in request.path %}text-white font-bold{% endif %}">
+                                <i class="fa fa-list mr-2 w-3"></i> Catálogo
+                            </a>
+                        </li>
+                    </ul>
+                </li>                
             </ul>
         </nav>
     </aside>
@@ -266,7 +313,7 @@
             
             <!-- Footer -->
             <footer class="mt-12 border-t border-gray-300/60 pt-6 text-center text-xs text-gray-500 relative z-10">
-                &copy; {% now "Y" %} <strong>e-Financeiro SaaS</strong>. Todos os direitos reservados.
+                &copy; {% now "Y" %} <strong>e-Gerente Serviços SaaS</strong>. Todos os direitos reservados.
             </footer>
         </main>
     </div>
@@ -318,6 +365,8 @@
                 setTimeout(() => alert.remove(), 500);
             });
         }, 5000); // Alerta desaparece após 5 segundos
+
+        
     </script>
     
     <!-- Bloco para Scripts Específicos das Páginas -->
