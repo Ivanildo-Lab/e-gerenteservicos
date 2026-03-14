@@ -218,11 +218,25 @@
             <!-- Lado Direito Header -->
             <div class="flex items-center space-x-6">
                 <!-- Nome da Empresa -->
-                <div class="hidden md:flex flex-col items-end">
-                    <span class="font-bold text-sm tracking-wide">{{ user.empresa.nome|default:"Sem Empresa" }}</span>
-                    <span class="text-[10px] text-blue-100 opacity-80 font-mono">CNPJ: {{ user.empresa.cnpj }}</span>
+            <div class="flex items-center space-x-6">
+                
+                <!-- LOGO E NOME DA EMPRESA (Padrão SaaS) -->
+                <div class="hidden md:flex items-center space-x-3 border-r border-blue-400/50 pr-6">
+                    <!-- Verifica se tem logo -->
+                    {% if user.is_authenticated and user.empresa.logo %}
+                        <img src="{{ user.empresa.logo.url }}" alt="Logo Empresa" class="h-9 w-9 rounded bg-white object-cover border-2 border-white/20 shadow-sm">
+                    {% else %}
+                        <div class="h-9 w-9 rounded bg-white/20 flex items-center justify-center border-2 border-white/20 shadow-sm">
+                            <i class="fa fa-building text-white/80 text-sm"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- Textos -->
+                    <div class="flex flex-col items-start">
+                        <span class="font-bold text-sm tracking-wide leading-tight">{{ user.empresa.nome|default:"Sem Empresa" }}</span>
+                        <span class="text-[10px] text-blue-100 opacity-80 font-mono leading-tight">CNPJ: {{ user.empresa.cnpj|default:"Não informado" }}</span>
+                    </div>
                 </div>
-
                 <!-- MENU DO PERFIL / LOGOUT (COM JS ONCLICK) -->
                 <div class="relative">
                     <!-- Botão que ativa o menu -->
