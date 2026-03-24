@@ -1,15 +1,43 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+    /* Técnica para esconder inputs de arquivo sem quebrar o envio do formulário */
+    .input-arquivo-oculto {
+        width: 0.1px !important;
+        height: 0.1px !important;
+        opacity: 0 !important;
+        overflow: hidden !important;
+        position: absolute !important;
+        z-index: -1 !important;
+    }
+
+    /* Estilo para garantir que o formulário apareça corretamente */
+    input, select, textarea {
+        max-width: 100% !important;
+    }
+
+    /* Estilo do checkbox de exclusão */
+    input[type="checkbox"] {
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: #ef4444;
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
 {% block titulo_cabecalho %}
     {% if form.instance.pk %}Ficha: {{ form.instance.nome_completo }}{% else %}Novo Funcionário{% endif %}
 {% endblock %}
 
 {% block content %}
+<!-- novalidate impede que o navegador bloqueie o envio caso algum campo oculto dê erro -->
 <form method="post" enctype="multipart/form-data" class="pb-32" novalidate>
     {% csrf_token %}
     
-    <!-- AVISO DE ERROS (Para você saber se o Django barrou algo) -->
+    <!-- AVISO DE ERROS DO DJANGO -->
     {% if form.errors or formset.errors %}
     <div class="bg-red-100 border-l-4 border-red-500 p-4 mb-6 shadow-md">
         <div class="flex">
@@ -36,14 +64,17 @@
                     <i class="fa fa-user mr-2 text-blue-500"></i> Identificação Pessoal
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    <!-- Sempre visível -->
                     <div class="md:col-span-7"><label class="text-[10px] font-bold uppercase text-gray-400">Nome Completo</label>{{ form.nome_completo }}</div>
-                    <div class="md:col-span-5"><label class="text-[10px] font-bold uppercase text-gray-400">E-mail Pessoal</label>{{ form.email }}</div>
-                    <div class="md:col-span-3"><label class="text-[10px] font-bold uppercase text-gray-400">Nascimento</label>{{ form.data_nascimento }}</div>
-                    <div class="md:col-span-3"><label class="text-[10px] font-bold uppercase text-gray-400">Estado Civil</label>{{ form.estado_civil }}</div>
-                    <div class="md:col-span-3"><label class="text-[10px] font-bold uppercase text-gray-400">Nacionalidade</label>{{ form.nacionalidade }}</div>
-                    <div class="md:col-span-3"><label class="text-[10px] font-bold uppercase text-gray-400">Naturalidade</label>{{ form.naturalidade }}</div>
-                    <div class="md:col-span-6"><label class="text-[10px] font-bold uppercase text-gray-400">Nome da Mãe</label>{{ form.nome_mae }}</div>
-                    <div class="md:col-span-6"><label class="text-[10px] font-bold uppercase text-gray-400">Nome do Pai</label>{{ form.nome_pai }}</div>
+                    
+                    <!-- Ocultos para Diarista -->
+                    <div class="md:col-span-5 esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">E-mail Pessoal</label>{{ form.email }}</div>
+                    <div class="md:col-span-3 esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Nascimento</label>{{ form.data_nascimento }}</div>
+                    <div class="md:col-span-3 esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Estado Civil</label>{{ form.estado_civil }}</div>
+                    <div class="md:col-span-3 esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Nacionalidade</label>{{ form.nacionalidade }}</div>
+                    <div class="md:col-span-3 esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Naturalidade</label>{{ form.naturalidade }}</div>
+                    <div class="md:col-span-6 esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Nome da Mãe</label>{{ form.nome_mae }}</div>
+                    <div class="md:col-span-6 esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Nome do Pai</label>{{ form.nome_pai }}</div>
                 </div>
             </div>
 
@@ -53,20 +84,23 @@
                     <i class="fa fa-file-invoice mr-2 text-indigo-500"></i> Documentação
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <!-- CPF Sempre visível -->
                     <div><label class="text-[10px] font-bold uppercase text-gray-400">CPF</label>{{ form.cpf }}</div>
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">RG</label>{{ form.rg }}</div>
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Órgão Emissor</label>{{ form.rg_orgao }}</div>
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">PIS/PASEP</label>{{ form.pis }}</div>
-                    <div class="md:col-span-2"><label class="text-[10px] font-bold uppercase text-gray-400">Nº CTPS</label>{{ form.ctps_numero }}</div>
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Série</label>{{ form.ctps_serie }}</div>
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">UF CTPS</label>{{ form.ctps_uf }}</div>
-                    <div class="md:col-span-2"><label class="text-[10px] font-bold uppercase text-gray-400">Nº CNH</label>{{ form.cnh_numero }}</div>
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Cat. CNH</label>{{ form.cnh_categoria }}</div>
-                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Validade CNH</label>{{ form.cnh_validade }}</div>
+                    
+                    <!-- Ocultos para Diarista -->
+                    <div class="esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">RG</label>{{ form.rg }}</div>
+                    <div class="esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Órgão Emissor</label>{{ form.rg_orgao }}</div>
+                    <div class="esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">PIS/PASEP</label>{{ form.pis }}</div>
+                    <div class="md:col-span-2 esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Nº CTPS</label>{{ form.ctps_numero }}</div>
+                    <div class="esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Série</label>{{ form.ctps_serie }}</div>
+                    <div class="esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">UF CTPS</label>{{ form.ctps_uf }}</div>
+                    <div class="md:col-span-2 esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Nº CNH</label>{{ form.cnh_numero }}</div>
+                    <div class="esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Cat. CNH</label>{{ form.cnh_categoria }}</div>
+                    <div class="esconder-diarista"><label class="text-[10px] font-bold uppercase text-gray-400">Validade CNH</label>{{ form.cnh_validade }}</div>
                 </div>
             </div>
 
-            <!-- BLOCO 3: LOCALIZAÇÃO -->
+            <!-- BLOCO 3: LOCALIZAÇÃO E CONTATO (Sempre visível) -->
             <div class="bg-white rounded shadow border-t-4 border-cyan-500 p-6">
                 <h3 class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider border-b pb-2">
                     <i class="fa fa-map-marker-alt mr-2 text-cyan-500"></i> Endereço e Contato
@@ -83,7 +117,7 @@
                 </div>
             </div>
 
-            <!-- BLOCO 4: OCORRÊNCIAS -->
+            <!-- BLOCO 4: OCORRÊNCIAS (Sempre visível) -->
             <div class="bg-white rounded shadow border-t-4 border-red-500 p-6">
                 <h3 class="text-sm font-bold text-gray-700 mb-6 uppercase tracking-wider border-b pb-3">
                     <i class="fa fa-clipboard-list mr-2 text-red-500"></i> Prontuário de Atividades
@@ -105,8 +139,6 @@
                             </div>
                             <div class="md:col-span-3 flex flex-col items-center">
                                 <label class="text-[9px] font-black uppercase text-gray-400 block mb-1">Anexo</label>
-                                
-                                <!-- ÁREA DE UPLOAD (LABEL + INPUT HIDDEN) -->
                                 <label class="cursor-pointer w-full group">
                                     <div class="h-20 w-full bg-white border-2 border-dashed border-gray-300 rounded flex flex-col items-center justify-center overflow-hidden hover:border-indigo-500 transition relative">
                                         <div class="js-preview-placeholder w-full h-full flex flex-col items-center justify-center">
@@ -124,13 +156,11 @@
                                         </div>
                                         <img class="js-img-preview-novo hidden w-full h-full object-cover absolute inset-0">
                                     </div>
-                                    <!-- AQUI ENTRA O INPUT (agora com class 'hidden' injetada pelo forms.py) -->
                                     {{ ocor_form.documento }}
                                 </label>
-                                
                                 {% if ocor_form.instance.documento %}
                                 <div class="mt-2 flex items-center bg-red-50 px-2 py-1 rounded border border-red-100">
-                                    <input type="checkbox" name="{{ ocor_form.prefix }}-documento-clear" id="{{ ocor_form.prefix }}-documento-clear_id" style="width: 1.1rem; height: 1.1rem; accent-color: #ef4444; cursor: pointer;">
+                                    <input type="checkbox" name="{{ ocor_form.prefix }}-documento-clear" id="{{ ocor_form.prefix }}-documento-clear_id" class="cursor-pointer">
                                     <label for="{{ ocor_form.prefix }}-documento-clear_id" class="text-[9px] text-red-600 font-bold ml-1 cursor-pointer">LIMPAR</label>
                                 </div>
                                 {% endif %}
@@ -149,26 +179,22 @@
         <!-- COLUNA DIREITA (3 COLUNAS) -->
         <div class="lg:col-span-3 space-y-6">
             
-            <!-- FOTO -->
+            <!-- FOTO DO PERFIL -->
             <div class="bg-white rounded shadow border-t-4 border-green-500 p-4 js-container-foto">
                 <h3 class="text-xs font-bold uppercase text-gray-500 mb-4 text-center">Foto do Perfil</h3>
                 <div class="flex flex-col items-center">
-                    
-                    <!-- ÁREA DE UPLOAD -->
                     <label class="cursor-pointer group relative block w-32 h-32">
                         <div class="w-full h-full rounded-full border-4 border-gray-100 shadow-lg overflow-hidden bg-gray-50 flex items-center justify-center group-hover:border-indigo-400 transition">
                             <div id="img-placeholder" class="{% if form.instance.foto %}hidden{% endif %}"><i class="fa fa-user text-5xl text-gray-300"></i></div>
                             <img id="img-preview" src="{% if form.instance.foto %}{{ form.instance.foto.url }}{% endif %}" class="{% if not form.instance.foto %}hidden{% endif %} w-full h-full object-cover">
                             <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition bg-black/20 rounded-full"><i class="fa fa-camera text-white text-xl"></i></div>
                         </div>
-                        
-                        <!-- AQUI ENTRA O INPUT (agora com class 'hidden' injetada pelo forms.py) -->
                         {{ form.foto }}
                     </label>
 
                     {% if form.instance.foto %}
                     <div class="mt-4 flex items-center bg-red-50 px-3 py-1 rounded border border-red-100">
-                        <input type="checkbox" name="foto-clear" id="foto-clear_id" style="width: 1.1rem; height: 1.1rem; accent-color: #ef4444; cursor: pointer;">
+                        <input type="checkbox" name="foto-clear" id="foto-clear_id" class="cursor-pointer">
                         <label for="foto-clear_id" class="text-[10px] text-red-600 font-bold ml-2 cursor-pointer">REMOVER FOTO</label>
                     </div>
                     {% endif %}
@@ -188,18 +214,19 @@
             <!-- BANCÁRIO -->
             <div class="bg-white rounded shadow border-t-4 border-gray-700 p-4 space-y-3">
                 <h3 class="text-xs font-bold uppercase text-gray-500 border-b pb-2">Pagamento</h3>
-                <div><label class="text-[10px] font-bold text-gray-400 uppercase">Banco</label>{{ form.banco }}</div>
-                <div class="grid grid-cols-2 gap-2">
+                <div class="esconder-diarista"><label class="text-[10px] font-bold text-gray-400 uppercase">Banco</label>{{ form.banco }}</div>
+                <div class="grid grid-cols-2 gap-2 esconder-diarista">
                     <div><label class="text-[10px] font-bold text-gray-400 uppercase">Agência</label>{{ form.agencia }}</div>
                     <div><label class="text-[10px] font-bold text-gray-400 uppercase">Conta</label>{{ form.conta }}</div>
                 </div>
+                <!-- Chave PIX fica sempre visível, muito usada para Diaristas -->
                 <div><label class="text-[10px] font-bold text-gray-400 uppercase">Chave PIX</label>{{ form.pix }}</div>
             </div>
         </div>
     </div>
 
     <!-- BOTÕES FIXOS -->
-    <div class="fixed bottom-0 right-0 left-0 md:left-64 bg-white/90 backdrop-blur p-4 shadow-2xl border-t flex justify-end space-x-4 z-50">
+    <div class="fixed bottom-0 right-0 left-0 md:left-64 bg-white p-4 shadow-2xl border-t flex justify-end space-x-4 z-50">
         <a href="{% url 'rh:lista_funcionarios' %}" class="px-8 py-2 border rounded text-gray-600 font-bold hover:bg-gray-100">CANCELAR</a>
         <button type="submit" class="px-12 py-2 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-700 shadow-lg">
             SALVAR FICHA
@@ -209,10 +236,47 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Máscaras -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.16/jquery.mask.min.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const fileInputs = document.querySelectorAll('input[type="file"]');
         
+        // 1. MÁSCARAS JQUERY
+        $('#id_cpf').mask('000.000.000-00', {reverse: true});
+        $('#id_cep').mask('00000-000');
+        var celBehavior = function (val) {
+            return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
+        },
+        celOptions = {
+            onKeyPress: function (val, e, field, options) {
+                field.mask(celBehavior.apply({}, arguments), options);
+            }
+        };
+        $('#id_telefone_celular').mask(celBehavior, celOptions);
+
+        // 2. LÓGICA DE ESCONDER CAMPOS DO DIARISTA
+        const tipoContratoSelect = document.getElementById('id_tipo_contrato');
+        const camposDiarista = document.querySelectorAll('.esconder-diarista');
+
+        function ajustarFormularioDiarista() {
+            if (tipoContratoSelect && tipoContratoSelect.value === 'DIARISTA') {
+                // Esconde
+                camposDiarista.forEach(campo => { campo.style.display = 'none'; });
+            } else {
+                // Mostra
+                camposDiarista.forEach(campo => { campo.style.display = ''; });
+            }
+        }
+
+        if (tipoContratoSelect) {
+            ajustarFormularioDiarista(); // Roda ao abrir a tela
+            tipoContratoSelect.addEventListener('change', ajustarFormularioDiarista); // Roda ao mudar a opção
+        }
+
+        // 3. PREVIEW DE FOTOS E DOCUMENTOS
+        const fileInputs = document.querySelectorAll('input[type="file"]');
         fileInputs.forEach(input => {
             input.onchange = function () {
                 const [file] = this.files;
@@ -239,7 +303,7 @@
                     const imgPlaceholder = document.getElementById('img-placeholder');
                     imgPreview.src = URL.createObjectURL(file);
                     imgPreview.classList.remove('hidden');
-                    imgPlaceholder.classList.add('hidden');
+                    if(imgPlaceholder) imgPlaceholder.classList.add('hidden');
                 }
             };
         });

@@ -31,6 +31,7 @@ class Funcionario(models.Model):
         ('PJ', 'Prestador de Serviço (PJ)'),
         ('TEMPORARIO', 'Temporário'),
         ('ESTAGIO', 'Estagiário'),
+        ('DIARISTA', 'Diarista / Avulso'),
     ]
 
     ESTADO_CIVIL_CHOICES = [
@@ -55,7 +56,7 @@ class Funcionario(models.Model):
     # --- DADOS PESSOAIS ---
     nome_completo = models.CharField(max_length=200, verbose_name="Nome Completo")
     foto = models.ImageField(upload_to='funcionarios/fotos/', blank=True, null=True)
-    data_nascimento = models.DateField(verbose_name="Data de Nascimento")
+    data_nascimento = models.DateField( blank=True, null=True,verbose_name="Data de Nascimento")
     estado_civil = models.CharField(max_length=20, choices=ESTADO_CIVIL_CHOICES, default='SOLTEIRO', verbose_name="Estado Civil")
     nacionalidade = models.CharField(max_length=50, default='Brasileira', verbose_name="Nacionalidade")
     naturalidade = models.CharField(max_length=50, blank=True, null=True, verbose_name="Naturalidade (Cidade/UF)")
@@ -64,9 +65,9 @@ class Funcionario(models.Model):
 
     # --- DOCUMENTAÇÃO ---
     cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF")
-    rg = models.CharField(max_length=20, verbose_name="RG")
+    rg = models.CharField(max_length=20, blank=True, null=True, verbose_name="RG")
     rg_orgao = models.CharField(max_length=20, blank=True, null=True, verbose_name="Órgão Emissor/UF")
-    pis = models.CharField(max_length=20, verbose_name="PIS/PASEP", help_text="Essencial para folha de pagamento")
+    pis = models.CharField(max_length=20,  blank=True, null=True,verbose_name="PIS/PASEP", help_text="Essencial para folha de pagamento")
     
     # CTPS (Carteira de Trabalho)
     ctps_numero = models.CharField(max_length=20, blank=True, null=True, verbose_name="Nº Carteira de Trabalho")
