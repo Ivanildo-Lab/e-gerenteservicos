@@ -53,7 +53,7 @@ INSTALLED_APPS = [
     'rh',
     'servicos',
     'web',
-
+    'crm',
 ]
 
 MIDDLEWARE = [

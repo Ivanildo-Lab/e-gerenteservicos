@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('servicos/', include('servicos.urls')),
     path('rh/', include('rh.urls')),
+    path('crm/', include('crm.urls')),
     
     # Rotas dos Apps
     path('cadastros/', include('cadastros.urls')),

@@ -48,18 +48,23 @@
                 
                 <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-4">
                     
-                    <!-- LINHA 1: CPF/CNPJ e CHECK RURAL -->
-                    <div class="md:col-span-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1" id="lbl_cpf_cnpj">CPF</label>
-                        {{ form.cpf_cnpj }}
+                    <!-- LINHA 1: CPF SEPARADO DO CNPJ -->
+                    <div class="md:col-span-4 pf-field">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+                        {{ form.cpf }}
                     </div>
                     
-                    <!-- Checkbox Produtor Rural (Só aparece se for PF, controlado via JS) -->
+                    <div class="md:col-span-4 pj-field hidden">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
+                        {{ form.cnpj }}
+                    </div>
+                    
+                    <!-- Checkbox Produtor Rural -->
                     <div class="md:col-span-4 flex items-end pb-3" id="div_rural">
                         <div class="flex items-center h-5">
                             {{ form.is_produtor_rural }}
                             <label for="id_is_produtor_rural" class="ml-2 block text-sm text-gray-900">
-                                Produtor Rural? <span class="text-gray-500 text-xs">(Possui Inscrição Estadual)</span>
+                                Produtor Rural? <span class="text-gray-500 text-xs">(Possui I.E.)</span>
                             </label>
                         </div>
                     </div>
@@ -70,8 +75,6 @@
                         {{ form.categoria }}
                     </div>
                     {% else %}
-                    <!-- Se for fornecedor, deixa um espaço vazio ou expande os outros campos -->
-                    <!-- Aqui vou deixar uma div vazia para manter o alinhamento do grid, se preferir -->
                     <div class="md:col-span-4"></div> 
                     {% endif %}
                     
@@ -131,18 +134,26 @@
                         {{ form.cep }}
                     </div>
                     <div class="md:col-span-7">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.endereco.label }}</label>
-                        {{ form.endereco }}
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.logradouro.label|default:"Rua/Av" }}</label>
+                        {{ form.logradouro }}
                     </div>
                     <div class="md:col-span-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.numero.label|default:"Número" }}</label>
+                        {{ form.numero }}
+                    </div>
+                    <div class="md:col-span-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.complemento.label|default:"Complemento" }}</label>
+                        {{ form.complemento }}
+                    </div>
+                    <div class="md:col-span-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.bairro.label }}</label>
                         {{ form.bairro }}
                     </div>
-                    <div class="md:col-span-9">
+                    <div class="md:col-span-3">
                         <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.cidade.label }}</label>
                         {{ form.cidade }}
                     </div>
-                    <div class="md:col-span-3">
+                    <div class="md:col-span-1">
                         <label class="block text-sm font-medium text-gray-700 mb-1">{{ form.uf.label }}</label>
                         {{ form.uf }}
                     </div>
@@ -221,55 +232,48 @@
 
 <script>
 $(document).ready(function() {
-    // --- LÓGICA DE MÁSCARAS ---
-    var behavior = function (val) {
-        return val.replace(/\D/g, '').length === 11 ? '000.000.000-00' : '00.000.000/0000-00';
+    // --- LÓGICA DE MÁSCARAS (ATUALIZADA) ---
+    $('#id_cpf').mask('000.000.000-00', {reverse: true});
+    $('#id_cnpj').mask('00.000.000/0000-00', {reverse: true});
+    $('#id_cep').mask('00000-000');
+    
+    // Máscara inteligente para Celular (8 ou 9 dígitos)
+    var celBehavior = function (val) {
+        return val.replace(/\D/g, '').length === 11 ? '(00) 00000-0000' : '(00) 0000-00009';
     },
-    options = {
+    celOptions = {
         onKeyPress: function (val, e, field, options) {
-            field.mask(behavior.apply({}, arguments), options);
+            field.mask(celBehavior.apply({}, arguments), options);
         }
     };
+    $('#id_celular').mask(celBehavior, celOptions);
+    $('#id_telefone_fixo').mask('(00) 0000-0000');
 
     // --- LÓGICA DE PF / PJ / RURAL ---
     const selectTipo = $('#id_tipo_pessoa');
     const checkRural = $('#id_is_produtor_rural');
     
-    // Elementos para Mostrar/Esconder
     const divRural = $('#div_rural');
     const divIE = $('#div_ie');
-    const pfFields = $('.pf-field'); // Campos só de PF (Nascimento, RG)
-    const pjFields = $('.pj-field'); // Campos só de PJ (Razão Social)
-    
+    const pfFields = $('.pf-field'); 
+    const pjFields = $('.pj-field'); 
     const lblNome = $('#lbl_nome');
-    const lblDoc = $('#lbl_cpf_cnpj');
-    const inputDoc = $('#id_cpf_cnpj');
 
     function atualizarTela() {
         const tipo = selectTipo.val();
         
         if (tipo === 'PJ') {
-            // MODO PESSOA JURÍDICA
             lblNome.text("Nome Fantasia");
-            lblDoc.text("CNPJ");
-            inputDoc.mask('00.000.000/0000-00');
-            
-            pfFields.hide(); // Esconde Nascimento e RG
-            divRural.hide(); // PJ não é "produtor rural" dessa forma
-            pjFields.show(); // Mostra Razão Social
-            divIE.show();    // Mostra Inscrição Estadual
-            
+            pfFields.hide(); 
+            divRural.hide(); 
+            pjFields.show(); 
+            divIE.show();    
         } else {
-            // MODO PESSOA FÍSICA
             lblNome.text("Nome Completo");
-            lblDoc.text("CPF");
-            inputDoc.mask('000.000.000-00');
+            pjFields.hide(); 
+            pfFields.show(); 
+            divRural.show(); 
             
-            pjFields.hide(); // Esconde Razão Social
-            pfFields.show(); // Mostra Nascimento e RG
-            divRural.show(); // Mostra opção de Rural
-            
-            // Verifica se é produtor rural para mostrar IE
             if (checkRural.is(':checked')) {
                 divIE.show();
             } else {
@@ -282,7 +286,7 @@ $(document).ready(function() {
     selectTipo.change(atualizarTela);
     checkRural.change(atualizarTela);
     
-    // Inicializa
+    // Inicializa a tela com o valor que veio do banco
     atualizarTela();
 
     // Preview de Foto

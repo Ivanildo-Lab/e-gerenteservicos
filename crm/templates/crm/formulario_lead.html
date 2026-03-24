@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block titulo_cabecalho %}Ficha do Lead (Prospecto){% endblock %}
+
+{% block extra_css %}
+<style>
+    input[type="checkbox"] { width: 1.1rem; height: 1.1rem; accent-color: #ef4444; cursor: pointer; }
+</style>
+{% endblock %}
+
+{% block content %}
+<form method="post" class="pb-24" novalidate>
+    {% csrf_token %}
+    
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- COLUNA PRINCIPAL: DADOS DO LEAD -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white rounded shadow border-t-4 border-orange-500 p-6">
+                <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2 uppercase"><i class="fa fa-building mr-2 text-orange-500"></i> Pré-Cadastro</h3>
+                <div class="space-y-4">
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Nome da Empresa / Negócio</label>{{ form.nome_empresa }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Pessoa de Contato</label>{{ form.nome_contato }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Telefone / WhatsApp</label>{{ form.telefone }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">E-mail</label>{{ form.email }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Origem (Onde nos achou?)</label>{{ form.origem }}</div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded shadow border-t-4 border-gray-700 p-6">
+                <h3 class="text-sm font-bold text-gray-700 mb-4 border-b pb-2 uppercase"><i class="fa fa-funnel-dollar mr-2 text-gray-600"></i> Status no Funil</h3>
+                <div class="space-y-4">
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Etapa Atual</label>{{ form.status }}</div>
+                    <div><label class="text-[10px] font-bold uppercase text-gray-400">Motivo da Perda (Se houver)</label>{{ form.motivo_perda }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUNA DIREITA: AGENDA DE INTERAÇÕES (Visitas / Ligações) -->
+        <div class="lg:col-span-8">
+            <div class="bg-white rounded shadow border-t-4 border-blue-500 p-6 h-full">
+                <div class="flex justify-between items-center mb-6 border-b pb-3">
+                    <h3 class="text-sm font-bold text-gray-700 uppercase"><i class="fa fa-calendar-check mr-2 text-blue-500"></i> Agenda de Interações</h3>
+                    <span class="text-[10px] text-gray-400">Registre ligações e agende visitas</span>
+                </div>
+
+                {{ formset.management_form }}
+                <div class="space-y-4">
+                    {% for interacao in formset %}
+                    <div class="p-4 rounded border {% if interacao.instance.pk %}bg-gray-50 border-gray-200{% else %}bg-blue-50/50 border-dashed border-blue-300{% endif %}">
+                        {{ interacao.id }}
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                            <div class="md:col-span-3">
+                                <label class="text-[9px] font-black uppercase text-gray-400 block mb-1">Data/Hora</label>
+                                {{ interacao.data_agendada }}
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="text-[9px] font-black uppercase text-gray-400 block mb-1">Tipo</label>
+                                {{ interacao.tipo }}
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="text-[9px] font-black uppercase text-gray-400 block mb-1">Responsável</label>
+                                {{ interacao.responsavel }}
+                            </div>
+                            <div class="md:col-span-4">
+                                <label class="text-[9px] font-black uppercase text-gray-400 block mb-1">Assunto / Notas</label>
+                                {{ interacao.descricao }}
+                            </div>
+                            <div class="md:col-span-1 flex flex-col items-center border-l border-gray-200 pl-2">
+                                <label class="text-[9px] font-black uppercase text-green-600 block mb-1" title="Marque quando finalizar">Feito?</label>
+                                {{ interacao.realizada }}
+                                <div class="hidden">{{ interacao.DELETE }}</div> <!-- Ocultamos o delete por simplificação -->
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="fixed bottom-0 right-0 left-0 md:left-64 bg-white/90 backdrop-blur p-4 shadow-2xl border-t flex justify-end space-x-4 z-50">
+        <a href="{% url 'crm:lista_leads' %}" class="px-8 py-2 border rounded text-gray-600 font-bold hover:bg-gray-100">VOLTAR</a>
+        <button type="submit" class="px-10 py-2 bg-orange-500 text-white rounded font-bold hover:bg-orange-600 shadow-lg">
+            <i class="fa fa-save mr-2"></i> SALVAR CRM
+        </button>
+    </div>
+</form>
+{% endblock %}

@@ -195,7 +195,26 @@
                             </a>
                         </li>
                     </ul>
-                </li>                
+                </li>     
+                <!-- 7. CRM / MARKETING  -->
+                <li>
+                    <button type="button" onclick="toggleMenu('crm-menu')" class="w-full flex items-center justify-between py-3 px-4 text-gray-300 hover:text-white sidebar-hover transition-all focus:outline-none {% if '/crm/' in request.path %}text-white bg-black/10{% endif %}">
+                        <div class="flex items-center">
+                            <!-- Ícone de Megafone para Marketing -->
+                            <i class="fa fa-bullhorn w-6 text-center text-lg"></i>
+                            <span class="ml-2 font-medium">CRM / Vendas</span>
+                        </div>
+                        <i id="crm-arrow" class="fa fa-angle-right transition-transform duration-200 text-xs {% if '/crm/' in request.path %}rotate-90{% endif %}"></i>
+                    </button>
+                    
+                    <ul id="crm-menu" class="bg-black/20 overflow-hidden transition-all duration-300 {% if '/crm/' not in request.path %}hidden{% endif %}">
+                        <li>
+                            <a href="{% url 'crm:lista_leads' %}" class="flex items-center py-2 pl-12 pr-4 text-gray-400 hover:text-white text-xs hover:bg-white/5 border-l-2 border-transparent hover:border-orange-400 {% if 'leads' in request.path %}text-white font-bold{% endif %}">
+                                <i class="fa fa-filter mr-2 w-3 text-orange-400"></i> Funil de Leads
+                            </a>
+                        </li>
+                    </ul>
+                </li>                          
             </ul>
         </nav>
     </aside>

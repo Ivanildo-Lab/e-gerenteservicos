@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block titulo_cabecalho %}Funil de Vendas{% endblock %}
+{% block subtitulo_cabecalho %}CRM e Captação de Clientes{% endblock %}
+{% block breadcrumb %}CRM / Leads{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded shadow border-t-4 border-orange-500">
+    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-700"><i class="fa fa-filter text-orange-500 mr-2"></i> Prospectos (Leads)</h3>
+        <a href="{% url 'crm:novo_lead' %}" class="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition shadow font-bold">
+            <i class="fa fa-plus-circle mr-2"></i> NOVO LEAD
+        </a>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Empresa / Negócio</th>
+                    <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Contato</th>
+                    <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Status no Funil</th>
+                    <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for lead in leads %}
+                <tr class="hover:bg-orange-50 transition">
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-gray-900 text-sm">{{ lead.nome_empresa }}</div>
+                        <div class="text-xs text-gray-500"><i class="fa fa-bullseye mr-1"></i> Origem: {{ lead.origem|default:"Não informada" }}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-semibold text-gray-800">{{ lead.nome_contato }}</div>
+                        <div class="text-xs text-blue-600"><i class="fa fa-whatsapp text-green-500 mr-1"></i> {{ lead.telefone }}</div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        {% if lead.status == 'NOVO' %}<span class="bg-gray-200 text-gray-700 text-[10px] px-2 py-1 rounded font-bold">NOVO</span>
+                        {% elif lead.status == 'CONTATO' %}<span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-1 rounded font-bold">EM CONTATO</span>
+                        {% elif lead.status == 'AGENDADO' %}<span class="bg-yellow-100 text-yellow-700 text-[10px] px-2 py-1 rounded font-bold">VISITA AGENDADA</span>
+                        {% elif lead.status == 'PROPOSTA' %}<span class="bg-purple-100 text-purple-700 text-[10px] px-2 py-1 rounded font-bold">PROPOSTA ENVIADA</span>
+                        {% elif lead.status == 'GANHO' %}<span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded font-bold"><i class="fa fa-trophy mr-1"></i> GANHO (CLIENTE)</span>
+                        {% else %}<span class="bg-red-100 text-red-700 text-[10px] px-2 py-1 rounded font-bold">PERDIDO</span>{% endif %}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <a href="{% url 'crm:editar_lead' lead.id %}" class="text-orange-500 hover:text-orange-700 bg-orange-50 hover:bg-orange-100 p-2 rounded-full transition" title="Gerenciar Lead">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="p-10 text-center text-gray-400">Nenhum Lead cadastrado no funil.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
