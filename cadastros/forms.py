@@ -68,3 +68,13 @@ class CadastroForm(forms.ModelForm):
             if existe:
                 raise forms.ValidationError("Este Nº de Registro já existe.")
         return num
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        tipo_pessoa = cleaned_data.get('tipo_pessoa')
+        cpf = cleaned_data.get('cpf')
+        cnpj = cleaned_data.get('cnpj')
+        
+        # Como o Form não sabe a empresa, pegamos a instância se for edição
+        # ou tratamos a validação final na View (como fizemos no passo 1).
+        return cleaned_data

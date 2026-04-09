@@ -41,28 +41,39 @@ def lista_clientes(request):
         'filtro_status': status
     })
 
+from django.db import IntegrityError # Certifique-se de ter este import no topo
+
 @login_required
 def novo_cliente(request):
     if request.method == 'POST':
-        # Passamos papel='CLI' para o form saber que deve manter o campo Categoria
-        form = CadastroForm(request.POST, request.FILES, user=request.user, papel='CLI')
+        form = CadastroForm(request.POST, request.FILES)
         if form.is_valid():
-            obj = form.save(commit=False)
-            obj.empresa = request.user.empresa
-            obj.papel = 'CLI' # Força ser Cliente
-            obj.save()
-            messages.success(request, "Cliente cadastrado com sucesso!")
-            return redirect('lista_clientes')
+            try:
+                obj = form.save(commit=False)
+                
+                # Regra SaaS: Vincula a empresa do usuário logado
+                if hasattr(request.user, 'empresa') and request.user.empresa:
+                    obj.empresa = request.user.empresa
+                elif hasattr(request.user, 'funcionario'):
+                    obj.empresa = request.user.funcionario.empresa
+                
+                obj.save()
+                messages.success(request, "Cliente cadastrado com sucesso!")
+                return redirect('lista_clientes')
+                
+            except IntegrityError as e:
+                # Captura o erro de duplicidade do MySQL
+                error_msg = str(e).lower()
+                if 'unique_cnpj_por_empresa' in error_msg:
+                    form.add_error('cnpj', 'Este CNPJ já está cadastrado para outro cliente nesta empresa.')
+                elif 'unique_cpf_por_empresa' in error_msg:
+                    form.add_error('cpf', 'Este CPF já está cadastrado para outro cliente nesta empresa.')
+                else:
+                    messages.error(request, "Erro de integridade: Registro duplicado.")
     else:
-        # Inicializa como Pessoa Física por padrão
-        form = CadastroForm(user=request.user, initial={'tipo_pessoa': 'PF'}, papel='CLI')
+        form = CadastroForm()
     
-    return render(request, 'cadastros/formulario.html', {
-        'form': form, 
-        'titulo': 'Novo Cliente',
-        'url_cancelar': 'lista_clientes' 
-    })
-
+    return render(request, 'cadastros/formulario.html', {'form': form})
 
 # ==================================================
 # GESTÃO DE FORNECEDORES
