@@ -1,47 +1,103 @@
 {% extends 'base.html' %}
 
 {% block titulo_cabecalho %}Catálogo de Serviços{% endblock %}
-{% block subtitulo_cabecalho %}Preços e Serviços Disponíveis{% endblock %}
+{% block subtitulo_cabecalho %}Preços e Serviços Disponíveis (O "Cardápio" da Empresa){% endblock %}
 {% block breadcrumb %}Serviços / Catálogo{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded shadow border-t-4 border-blue-400">
+<div class="bg-white rounded shadow border-t-4 border-blue-500">
     
-    <!-- HEADER -->
-    <div class="p-4 border-b border-gray-200 flex justify-between items-center">
-        <h3 class="text-lg font-semibold text-gray-700">Serviços Disponíveis</h3>
-        <a href="{% url 'servicos:lista_pedidos' %}" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-800 transition flex items-center shadow-sm">
-            <i class="fa fa-arrow-left mr-2"></i> Voltar para Pedidos
-        </a>
+    <!-- HEADER E BOTÕES -->
+    <div class="p-4 border-b border-gray-200 flex justify-between items-center flex-wrap gap-4">
+        <h3 class="text-lg font-semibold text-gray-700">Tabela de Preços</h3>
+        <div class="flex space-x-2">
+            <a href="{% url 'servicos:lista_pedidos' %}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300 transition font-bold text-sm flex items-center shadow-sm">
+                <i class="fa fa-arrow-left mr-2"></i> Voltar para Pedidos
+            </a>
+            <a href="{% url 'servicos:novo_servico' %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition shadow font-bold text-sm flex items-center">
+                <i class="fa fa-plus-circle mr-2"></i> Novo Serviço
+            </a>
+        </div>
     </div>
+
+    <!-- BARRA DE BUSCA -->
+    <form method="GET" class="p-4 bg-gray-50 border-b border-gray-200 flex flex-col md:flex-row gap-4 items-center">
+        <div class="w-full md:flex-1">
+            <label class="sr-only">Buscar Serviço</label>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fa fa-search text-gray-400"></i>
+                </div>
+                <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Buscar por nome do serviço ou descrição..." class="pl-10 w-full border-gray-300 rounded p-2 text-sm border shadow-sm focus:ring-blue-500 focus:border-blue-500">
+            </div>
+        </div>
+        <div class="w-full md:w-auto flex gap-2">
+            <button type="submit" class="w-full md:w-auto bg-gray-700 text-white px-6 py-2 rounded hover:bg-gray-800 transition shadow font-bold text-sm">
+                Buscar
+            </button>
+            {% if request.GET.q %}
+            <a href="{% url 'servicos:lista_catalogo' %}" class="w-full md:w-auto bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition shadow font-bold text-sm text-center" title="Limpar Busca">
+                <i class="fa fa-times"></i>
+            </a>
+            {% endif %}
+        </div>
+    </form>
     
-    <!-- GRID DE SERVIÇOS -->
-    <div class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for s in catalogo %}
-        <div class="border rounded-lg p-5 shadow-sm hover:shadow-md transition-all bg-gray-50 border-gray-200 flex flex-col justify-between">
-            <div>
-                <div class="text-blue-600 font-bold uppercase text-[10px] mb-1 tracking-widest">
-                    Cobrança: {{ s.get_unidade_display|default:s.unidade }}
-                </div>
-                <h4 class="text-lg font-bold text-gray-800 mb-2">{{ s.nome }}</h4>
-                <div class="text-3xl font-mono font-black text-gray-700 mb-4">
-                    R$ {{ s.valor_base|floatformat:2 }}
-                </div>
-                <p class="text-gray-500 text-xs italic leading-relaxed">
-                    {{ s.descricao|default:"Sem descrição detalhada cadastrada para este serviço." }}
-                </p>
-            </div>
-            
-            <div class="mt-4 pt-4 border-t border-gray-200">
-                <span class="text-[10px] text-gray-400 uppercase font-semibold">Cód. Interno: #{{ s.id }}</span>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-span-full py-16 text-center text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200">
-            <i class="fa fa-folder-open text-4xl mb-3 block text-gray-300"></i>
-            <p class="italic">O catálogo de serviços desta empresa ainda está vazio.</p>
-        </div>
-        {% endfor %}
+    <!-- TABELA DE SERVIÇOS -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider w-16">Cód</th>
+                    <th class="px-6 py-3 text-left text-[10px] font-bold text-gray-500 uppercase tracking-wider">Serviço / Descrição</th>
+                    <th class="px-6 py-3 text-center text-[10px] font-bold text-gray-500 uppercase tracking-wider w-32">Cobrança</th>
+                    <th class="px-6 py-3 text-right text-[10px] font-bold text-gray-500 uppercase tracking-wider w-40">Valor Base (R$)</th>
+                    <th class="px-6 py-3 text-center text-[10px] font-bold text-gray-500 uppercase tracking-wider w-28">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200 text-sm">
+                {% for s in catalogo %}
+                <tr class="hover:bg-blue-50 transition">
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-500 font-mono text-xs">
+                        #{{ s.id }}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="font-bold text-gray-900 text-base">{{ s.nome }}</div>
+                        <div class="text-xs text-gray-500 italic mt-1 line-clamp-2" title="{{ s.descricao }}">{{ s.descricao|default:"Sem descrição adicional." }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <span class="px-3 py-1 inline-flex text-[10px] leading-5 font-bold rounded-full bg-indigo-100 text-indigo-800 uppercase tracking-widest">
+                            {{ s.get_unidade_display|default:s.unidade }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right font-mono font-black text-green-700 text-lg">
+                        {{ s.valor_base|floatformat:2 }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                        <div class="flex justify-center space-x-2">
+                            <a href="{% url 'servicos:editar_servico' s.id %}" class="text-blue-600 hover:text-blue-900 bg-blue-50 p-2 rounded-full transition hover:bg-blue-100" title="Editar">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="{% url 'servicos:excluir_servico' s.id %}" onclick="return confirm('Tem certeza que deseja excluir o serviço {{ s.nome }}?')" class="text-red-600 hover:text-red-900 bg-red-50 p-2 rounded-full transition hover:bg-red-100" title="Excluir">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-12 text-center text-gray-500 bg-gray-50">
+                        <i class="fa fa-folder-open text-4xl mb-3 block text-gray-300"></i>
+                        {% if request.GET.q %}
+                            Nenhum serviço encontrado para a busca "<strong>{{ request.GET.q }}</strong>".
+                        {% else %}
+                            O catálogo de serviços está vazio. Clique em "Novo Serviço" para começar.
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}

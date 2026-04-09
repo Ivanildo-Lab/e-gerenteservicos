@@ -3,6 +3,10 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Pedido, TipoServico
 from .forms import PedidoForm, AlocacaoFormSet, TipoServicoForm
+from django.db import models 
+from django.db.models import Q
+
+# --- VIEWS DOS PEDIDOS ---
 
 @login_required
 def lista_pedidos(request):
@@ -45,26 +49,54 @@ def novo_pedido(request, pk=None):
         'is_edit': pk is not None
     })
 
-# --- VIEWS DO CATÁLOGO ---
 
+# --- VIEWS DO CATÁLOGO ---
+@login_required
 @login_required
 def lista_catalogo(request):
+    # Pega todos os serviços da empresa
     catalogo = TipoServico.objects.filter(empresa=request.user.empresa)
+    
+    # Lógica de Busca (Search)
+    query = request.GET.get('q')
+    if query:
+        catalogo = catalogo.filter(
+            Q(nome__icontains=query) | 
+            Q(descricao__icontains=query)
+        )
+        
     return render(request, 'servicos/lista_catalogo.html', {'catalogo': catalogo})
 
 @login_required
-def novo_servico(request):
+def gerenciar_servico(request, pk=None):
+    # Serve tanto para NOVO quanto para EDITAR
+    servico = get_object_or_404(TipoServico, pk=pk, empresa=request.user.empresa) if pk else None
+    
     if request.method == 'POST':
-        form = TipoServicoForm(request.POST)
+        form = TipoServicoForm(request.POST, instance=servico)
         if form.is_valid():
-            servico = form.save(commit=False)
-            servico.empresa = request.user.empresa
-            servico.save()
-            messages.success(request, "Serviço adicionado ao catálogo!")
+            obj = form.save(commit=False)
+            obj.empresa = request.user.empresa
+            obj.save()
+            messages.success(request, "Serviço salvo com sucesso no catálogo!")
             return redirect('servicos:lista_catalogo')
     else:
-        form = TipoServicoForm()
+        form = TipoServicoForm(instance=servico)
+        
     return render(request, 'servicos/formulario_catalogo.html', {'form': form})
+
+@login_required
+def excluir_servico(request, pk):
+    servico = get_object_or_404(TipoServico, pk=pk, empresa=request.user.empresa)
+    try:
+        nome = servico.nome
+        servico.delete()
+        messages.success(request, f"Serviço '{nome}' removido do catálogo.")
+    except models.ProtectedError:
+        # Se já tiver uma OS usando esse serviço, o banco bloqueia para não quebrar o financeiro
+        messages.error(request, "Não é possível excluir este serviço pois ele já foi utilizado em Pedidos/OS.")
+    
+    return redirect('servicos:lista_catalogo')
 
 # Mantenha aqui a sua função imprimir_nota_servico que já criamos antes!
 @login_required
@@ -89,3 +121,18 @@ def imprimir_nota_servico(request, pedido_id):
         'empresa': pedido.empresa
     }
     return render(request, 'servicos/imprimir_nota_servico.html', context)
+
+@login_required
+def excluir_pedido(request, pk):
+    # Busca o pedido garantindo que pertence à empresa do usuário
+    pedido = get_object_or_404(Pedido, pk=pk, empresa=request.user.empresa)
+    
+    # Opcional: Você pode impedir a exclusão de pedidos já FATURADOS por segurança contábil
+    if pedido.status == 'FATURADO':
+        messages.error(request, "Não é permitido excluir um pedido que já foi FATURADO.")
+    else:
+        id_pedido = pedido.id
+        pedido.delete()
+        messages.success(request, f"Pedido #{id_pedido} removido com sucesso.")
+    
+    return redirect('servicos:lista_pedidos')

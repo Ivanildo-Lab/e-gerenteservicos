@@ -60,9 +60,8 @@ class Funcionario(models.Model):
     estado_civil = models.CharField(max_length=20, choices=ESTADO_CIVIL_CHOICES, default='SOLTEIRO', verbose_name="Estado Civil")
     nacionalidade = models.CharField(max_length=50, default='Brasileira', verbose_name="Nacionalidade")
     naturalidade = models.CharField(max_length=50, blank=True, null=True, verbose_name="Naturalidade (Cidade/UF)")
-    nome_mae = models.CharField(max_length=200, verbose_name="Nome da Mãe")
-    nome_pai = models.CharField(max_length=200, blank=True, null=True, verbose_name="Nome do Pai")
-
+    nome_mae = models.CharField(max_length=200, blank=True, null=True, verbose_name="Nome da Mãe")
+    nome_pai = models.CharField(max_length=200, blank=True, null=True, verbose_name="Nome do Pai") 
     # --- DOCUMENTAÇÃO ---
     cpf = models.CharField(max_length=14, unique=True, verbose_name="CPF")
     rg = models.CharField(max_length=20, blank=True, null=True, verbose_name="RG")

@@ -1,89 +1,130 @@
 {% extends 'base.html' %}
 
-{% block titulo_cabecalho %}
-    {% if form.instance.pk %}Editar{% else %}Novo Lançamento{% endif %}
+{% block extra_css %}
+<style>
+    /* Estilo do checkbox de parcelamento e exclusão */
+    input[type="checkbox"] {
+        width: 1.2rem;
+        height: 1.2rem;
+        accent-color: #3b82f6;
+        cursor: pointer;
+    }
+</style>
 {% endblock %}
-{% block subtitulo_cabecalho %}{{ titulo }}{% endblock %}
-{% block breadcrumb %}Formulário{% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto bg-white rounded shadow border-t-4 {% if 'Recebimento' in titulo %}border-green-500{% else %}border-red-500{% endif %} p-6">
+<div class="max-w-5xl mx-auto bg-white rounded shadow border-t-4 {% if 'Recebimento' in titulo or form.instance.tipo == 'RECEBER' %}border-green-500{% else %}border-red-500{% endif %} p-6">
     
-    <form method="post">
+    <form method="post" enctype="multipart/form-data" novalidate>
         {% csrf_token %}
         
-        <!-- DADOS PRINCIPAIS -->
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
-            
+        <!-- CABEÇALHO -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
             <div class="md:col-span-8">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase">Descrição do Lançamento</label>
                 {{ form.descricao }}
-                {% if form.descricao.errors %}<p class="text-xs text-red-600">{{ form.descricao.errors.0 }}</p>{% endif %}
             </div>
-
             <div class="md:col-span-4">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Categoria (Plano de Contas)</label>
+                <label class="block text-[10px] font-bold text-gray-400 uppercase">Categoria</label>
                 {{ form.plano_de_contas }}
-            </div>
-
-            <div class="md:col-span-6">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Cadastro</label>
-                {{ form.cadastro }}
-            </div>
-
-            <div class="md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Data Vencimento</label>
-                {{ form.data_vencimento }}
-            </div>
-
-            <div class="md:col-span-3">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Valor Total</label>
-                <div class="relative rounded-md shadow-sm">
-                    <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-                      <span class="text-gray-500 sm:text-sm">R$</span>
-                    </div>
-                    {{ form.valor }}
-                </div>
             </div>
         </div>
 
-        <!-- ÁREA DE PARCELAMENTO (Só aparece na criação) -->
+        <!-- FAVORECIDO -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6 bg-gray-50 p-4 rounded border">
+            <div class="md:col-span-3">
+                <label class="block text-[10px] font-bold text-blue-600 uppercase mb-1">Tipo de Favorecido</label>
+                {{ form.tipo_favorecido }}
+            </div>
+            <div class="md:col-span-9" id="box_cadastro">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Cliente / Fornecedor</label>
+                {{ form.cadastro }}
+            </div>
+            <div class="md:col-span-9 hidden" id="box_funcionario">
+                <label class="block text-[10px] font-bold text-indigo-600 uppercase mb-1"><i class="fa fa-user-tie"></i> Funcionário (RH)</label>
+                {{ form.funcionario }}
+            </div>
+        </div>
+
+        <!-- VALORES -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 mb-6">
+            <div class="md:col-span-4">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase">Vencimento</label>
+                {{ form.data_vencimento }}
+            </div>
+            <div class="md:col-span-4">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase">Valor Total</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">R$</div>
+                    <input type="number" name="valor" step="0.01" class="pl-10 w-full border border-gray-300 rounded p-2 text-sm" id="id_valor" value="{{ form.valor.value|default:'' }}">
+                </div>
+            </div>
+            <div class="md:col-span-4">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase">Status</label>
+                {{ form.status }}
+            </div>
+        </div>
+
+        <!-- PARCELAMENTO (CORRIGIDO ALINHAMENTO) -->
         {% if not form.instance.pk %}
-        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-            <div class="flex items-center mb-4">
+        <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100 mb-6">
+            <div class="flex items-center space-x-3 mb-4">
                 {{ form.gerar_parcelas }}
-                <label for="{{ form.gerar_parcelas.id_for_label }}" class="ml-2 text-sm font-bold text-gray-700 select-none cursor-pointer">
+                <label for="{{ form.gerar_parcelas.id_for_label }}" class="text-sm font-bold text-gray-700 cursor-pointer">
                     Deseja parcelar este valor?
                 </label>
             </div>
 
-            <div id="area-parcelas" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6 transition-all">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Qtd. Parcelas</label>
-                    {{ form.qtd_parcelas }}
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Acréscimo / Juros (%)</label>
-                    {{ form.taxa_juros }}
-                </div>
-                <div class="bg-blue-50 p-2 rounded border border-blue-100 flex flex-col justify-center items-center">
-                    <span class="text-xs text-blue-600 uppercase font-bold">Valor da Parcela</span>
-                    <span class="text-lg font-bold text-blue-800" id="preview-parcela">R$ 0,00</span>
+            <div id="area-parcelas" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div><label class="block text-[10px] font-bold text-gray-400 uppercase">Qtd. Parcelas</label>{{ form.qtd_parcelas }}</div>
+                <div><label class="block text-[10px] font-bold text-gray-400 uppercase">Juros Mensal (%)</label>{{ form.taxa_juros }}</div>
+                <div class="bg-white p-2 rounded border border-blue-200 flex flex-col justify-center items-center">
+                    <span class="text-[9px] text-blue-600 font-bold uppercase">Valor da Parcela</span>
+                    <span class="text-lg font-black text-blue-800" id="preview-parcela">R$ 0,00</span>
                 </div>
             </div>
         </div>
         {% endif %}
 
-        <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Observações</label>
-            {{ form.observacoes }}
+        <!-- OBSERVAÇÕES E ANEXO (CORRIGIDO) -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
+            <div class="md:col-span-8">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Observações Internas</label>
+                {{ form.observacoes }}
+            </div>
+            
+            <div class="md:col-span-4">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 text-center">Comprovante / Anexo</label>
+                <label for="{{ form.arquivo.auto_id }}" class="cursor-pointer group block">
+                    <div class="h-24 w-full bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center overflow-hidden hover:border-blue-500 hover:bg-blue-50 transition relative">
+                        
+                        <div id="anexo-placeholder" class="flex flex-col items-center">
+                            {% if form.instance.arquivo %}
+                                <i class="fa fa-file-invoice-dollar text-2xl text-blue-500"></i>
+                                <span class="text-[8px] font-bold text-blue-600 mt-1 uppercase">Ver Arquivo Atual</span>
+                            {% else %}
+                                <i class="fa fa-cloud-upload-alt text-2xl text-gray-300 group-hover:text-blue-400"></i>
+                                <span class="text-[9px] text-gray-400 mt-1">Clique para anexar</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Preview de Imagem (se for o caso) -->
+                        <img id="anexo-preview" class="hidden w-full h-full object-cover absolute inset-0">
+                        
+                        <div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                            <i class="fa fa-sync text-white"></i>
+                        </div>
+                    </div>
+                    {{ form.arquivo }}
+                </label>
+            </div>
         </div>
 
         <!-- BOTÕES -->
-        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100">
-            <button type="button" onclick="history.back()" class="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition">Cancelar</button>
-            <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 shadow transition">
-                <i class="fa fa-save mr-1"></i> Salvar
+        <div class="flex justify-end space-x-3 pt-6 border-t">
+            <button type="button" onclick="history.back()" class="px-8 py-2 bg-gray-100 text-gray-600 rounded font-bold hover:bg-gray-200">CANCELAR</button>
+            <button type="submit" class="px-12 py-2 bg-blue-600 text-white rounded font-bold hover:bg-blue-700 shadow-lg transition">
+                <i class="fa fa-save mr-2"></i> SALVAR CONTA
             </button>
         </div>
     </form>
@@ -93,50 +134,66 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // --- 1. LÓGICA DO FAVORECIDO ---
+        const selectFavorecido = document.getElementById('id_tipo_favorecido');
+        const boxCadastro = document.getElementById('box_cadastro');
+        const boxFuncionario = document.getElementById('box_funcionario');
+
+        function atualizarFavorecido() {
+            if (selectFavorecido.value === 'FUNCIONARIO') {
+                boxCadastro.classList.add('hidden');
+                boxFuncionario.classList.remove('hidden');
+            } else {
+                boxCadastro.classList.remove('hidden');
+                boxFuncionario.classList.add('hidden');
+            }
+        }
+        if (selectFavorecido) {
+            selectFavorecido.addEventListener('change', atualizarFavorecido);
+            atualizarFavorecido();
+        }
+
+        // --- 2. LÓGICA DE PARCELAMENTO ---
         const checkParcelar = document.getElementById('id_gerar_parcelas');
         const areaParcelas = document.getElementById('area-parcelas');
-        
-        // Elementos de Cálculo
         const inputValor = document.getElementById('id_valor');
         const inputQtd = document.getElementById('id_qtd_parcelas');
         const inputJuros = document.getElementById('id_taxa_juros');
         const displayParcela = document.getElementById('preview-parcela');
 
-        // Função para mostrar/esconder
-        function toggleParcelas() {
-            if (checkParcelar && checkParcelar.checked) {
-                areaParcelas.classList.remove('hidden');
-            } else if (areaParcelas) {
-                areaParcelas.classList.add('hidden');
-            }
-        }
-
-        // Função de Cálculo em Tempo Real
-        function calcularParcela() {
+        function calcular() {
             if (!checkParcelar.checked) return;
-
-            let valor = parseFloat(inputValor.value) || 0;
-            let qtd = parseInt(inputQtd.value) || 1;
-            let juros = parseFloat(inputJuros.value) || 0;
-
-            // Lógica: (Valor + Juros%) / Qtd
-            let valorTotal = valor + (valor * (juros / 100));
-            let valorParcela = valorTotal / qtd;
-
-            displayParcela.textContent = "R$ " + valorParcela.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            let v = parseFloat(inputValor.value) || 0;
+            let q = parseInt(inputQtd.value) || 1;
+            let j = parseFloat(inputJuros.value) || 0;
+            let total = v + (v * (j / 100));
+            displayParcela.textContent = "R$ " + (total / q).toLocaleString('pt-BR', {minimumFractionDigits: 2});
         }
 
-        // Eventos
         if (checkParcelar) {
-            checkParcelar.addEventListener('change', function() {
-                toggleParcelas();
-                calcularParcela();
+            checkParcelar.addEventListener('change', () => {
+                areaParcelas.classList.toggle('hidden', !checkParcelar.checked);
+                calcular();
             });
-            
-            inputValor.addEventListener('input', calcularParcela);
-            inputQtd.addEventListener('input', calcularParcela);
-            inputJuros.addEventListener('input', calcularParcela);
+            [inputValor, inputQtd, inputJuros].forEach(el => el.addEventListener('input', calcular));
         }
+
+        // --- 3. PREVIEW DO ANEXO ---
+        const inputArquivo = document.getElementById('id_arquivo');
+        inputArquivo.onchange = function() {
+            const [file] = this.files;
+            if (file) {
+                const preview = document.getElementById('anexo-preview');
+                const placeholder = document.getElementById('anexo-placeholder');
+                if (file.type.startsWith('image/')) {
+                    preview.src = URL.createObjectURL(file);
+                    preview.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                } else {
+                    placeholder.innerHTML = '<i class="fa fa-file-pdf text-2xl text-green-500 animate-pulse"></i><span class="text-[8px] font-bold text-green-600 uppercase">PDF Selecionado</span>';
+                }
+            }
+        };
     });
 </script>
 {% endblock %}

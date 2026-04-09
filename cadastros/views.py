@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Q
 from .models import Cadastro, CategoriaCliente
 from .forms import CadastroForm
+from django.db import IntegrityError
 
 # ==================================================
 # GESTÃO DE CLIENTES (Sócios / Alunos / Clientes)
@@ -124,12 +125,32 @@ def editar_cadastro(request, id):
     rota_retorno = 'lista_fornecedores' if cadastro.papel == 'FOR' else 'lista_clientes'
 
     if request.method == 'POST':
-        # Passamos o papel atual (cadastro.papel) para manter a lógica do campo categoria
         form = CadastroForm(request.POST, request.FILES, instance=cadastro, user=request.user, papel=cadastro.papel)
         if form.is_valid():
-            form.save()
-            messages.success(request, "Dados atualizados com sucesso!")
-            return redirect(rota_retorno)
+            try:
+                # Tenta salvar no banco de dados
+                obj = form.save(commit=False)
+                
+                if hasattr(request.user, 'empresa') and request.user.empresa:
+                    obj.empresa = request.user.empresa
+                elif hasattr(request.user, 'funcionario'):
+                    obj.empresa = request.user.funcionario.empresa
+                    
+                obj.save()
+                messages.success(request, "Cadastro salvo com sucesso!")
+                return redirect('lista_clientes') # Ajuste para o nome da sua URL
+                
+            except IntegrityError as e:
+                mensagem_erro = str(e).lower()
+                
+                if 'cnpj' in mensagem_erro:
+                    form.add_error('cnpj', 'Este CNPJ já está cadastrado para outro cliente/fornecedor.')
+                    messages.error(request, 'Não foi possível salvar: CNPJ já cadastrado.')
+                elif 'cpf' in mensagem_erro:
+                    form.add_error('cpf', 'Este CPF já está cadastrado para outro cliente/fornecedor.')
+                    messages.error(request, 'Não foi possível salvar: CPF já cadastrado.')
+                else:
+                    messages.error(request, 'Erro ao salvar: Registro duplicado no sistema.')
     else:
         form = CadastroForm(instance=cadastro, user=request.user, papel=cadastro.papel)
     
