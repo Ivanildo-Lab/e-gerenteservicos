@@ -71,11 +71,25 @@
                         </div>
                         <span class="text-[10px] text-gray-400 uppercase">{{ c.plano_de_contas.nome }}</span>
                     </td>
-                    <td class="px-6 py-4">
-                        <div class="font-medium text-gray-700">{{ c.descricao }}</div>
-                        {% if c.arquivo %}<a href="{{ c.arquivo.url }}" target="_blank" class="text-[10px] text-blue-600 font-bold hover:underline"><i class="fa fa-paperclip"></i> VER ANEXO</a>{% endif %}
-                    </td>
-                    <td class="px-6 py-4 text-right font-bold {% if c.tipo == 'RECEBER' %}text-green-600{% else %}text-red-600{% endif %}">R$ {{ c.valor|floatformat:2 }}</td>
+                        <td class="px-6 py-4">
+                            <div class="text-gray-900 font-medium">{{ c.descricao }}</div>
+                            <div class="flex items-center space-x-2 mt-1">
+                                <!-- Badge do Número do Documento -->
+                                {% if c.documento %}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200 uppercase">
+                                        <i class="fa fa-file-invoice mr-1"></i> NF: {{ c.documento }}
+                                    </span>
+                                {% endif %}
+
+                                <!-- Link do Anexo -->
+                                {% if c.arquivo %}
+                                    <a href="{{ c.arquivo.url }}" target="_blank" class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-700 border border-green-200 hover:bg-green-200 transition">
+                                        <i class="fa fa-paperclip mr-1"></i> VER ANEXO
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </td>   
+                 <td class="px-6 py-4 text-right font-bold {% if c.tipo == 'RECEBER' %}text-green-600{% else %}text-red-600{% endif %}">R$ {{ c.valor|floatformat:2 }}</td>
                     <td class="px-6 py-4 text-center">
                         {% if c.status == 'PAGA' %}<span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-[10px] font-bold">BAIXADA</span>
                         {% else %}<span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-[10px] font-bold">PENDENTE</span>{% endif %}
@@ -97,34 +111,42 @@
     </div>
 </div>
 
-<!-- MODAL DE BAIXA (AJUSTADO: Z-INDEX 9999 E ISOLAMENTO TOTAL) -->
+<!-- MODAL DE BAIXA ATUALIZADO -->
 <div id="modalBaixa" class="fixed inset-0 bg-black bg-opacity-70 hidden overflow-y-auto h-full w-full z-[9999] flex items-center justify-center p-4">
     <div class="relative p-6 border shadow-2xl rounded-lg bg-white w-full max-w-md">
         <div class="text-center">
             <h3 class="text-xl font-bold text-gray-800 mb-4 border-b pb-2">Confirmar Baixa</h3>
             
             <div class="text-left bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-                <p class="text-[9px] text-gray-400 uppercase font-bold">Favorecido</p>
-                <p class="text-base font-bold text-gray-800 mb-3" id="modalCliente">...</p>
+                <p class="text-[9px] text-gray-400 uppercase font-bold mb-1">Favorecido</p>
+                <p class="text-base font-bold text-gray-800 mb-4" id="modalCliente">...</p>
                 
                 <div id="boxModalPix" class="hidden bg-indigo-50 p-3 rounded border border-indigo-100 mb-4">
                     <p class="text-[9px] text-indigo-400 uppercase font-bold mb-1">Chave PIX do Funcionário</p>
                     <p class="text-sm font-black text-indigo-700 select-all" id="modalPix">...</p>
                 </div>
                 
-                <div class="flex justify-between items-center border-t pt-3">
+                <div class="flex justify-between items-center border-t border-gray-200 pt-3">
                     <span class="text-xs font-bold text-gray-500 uppercase">Valor:</span>
                     <span class="text-xl font-black text-green-600">R$ <span id="modalValor">...</span></span>
                 </div>
             </div>
             
-            <form id="formBaixa" method="POST" action="">
+            <!-- IMPORTANTE: Adicionado enctype para upload de arquivos -->
+            <form id="formBaixa" method="POST" action="" enctype="multipart/form-data">
                 {% csrf_token %}
                 <div class="text-left space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Data da Baixa</label>
-                        <input type="date" name="data_pagamento" required class="w-full rounded border-gray-300 shadow-sm border p-2 text-sm focus:ring-2 focus:ring-green-500">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Data da Baixa</label>
+                            <input type="date" name="data_pagamento" required class="w-full rounded border-gray-300 shadow-sm border p-2 text-sm focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Nº Documento/NF</label>
+                            <input type="text" name="documento_baixa" placeholder="Ex: NF 123" class="w-full rounded border-gray-300 shadow-sm border p-2 text-sm focus:ring-2 focus:ring-green-500">
+                        </div>
                     </div>
+
                     <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Conta / Caixa de Saída</label>
                         <select name="caixa" required class="w-full rounded border-gray-300 border p-2 text-sm bg-white focus:ring-2 focus:ring-green-500">
@@ -132,7 +154,13 @@
                             {% for caixa in caixas %}<option value="{{ caixa.id }}">{{ caixa.nome }}</option>{% endfor %}
                         </select>
                     </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1">Anexar Comprovante / NF</label>
+                        <input type="file" name="arquivo_baixa" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                    </div>
                 </div>
+
                 <div class="flex gap-3 mt-8">
                     <button type="button" onclick="document.getElementById('modalBaixa').classList.add('hidden')" class="flex-1 px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded hover:bg-gray-300 transition">CANCELAR</button>
                     <button type="submit" class="flex-1 px-4 py-2 bg-green-600 text-white font-bold rounded hover:bg-green-700 shadow-lg transition uppercase">Confirmar Baixa</button>

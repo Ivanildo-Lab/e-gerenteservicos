@@ -2,128 +2,119 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>{{ titulo_relatorio }} - {{ empresa.nome }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>{{ titulo_relatorio }}</title>
     <style>
         @media print {
-            body { -webkit-print-color-adjust: exact; font-size: 9pt; }
-            .no-print { display: none !important; }
-            @page { margin: 1cm; }
+            .no-print { display: none; }
+            body { background-color: #fff; }
         }
+        body { font-family: 'Helvetica', 'Arial', sans-serif; font-size: 11px; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+        
+        /* Cabeçalho do Relatório */
+        .header { display: flex; justify-content: space-between; border-bottom: 2px solid #444; padding-bottom: 10px; margin-bottom: 20px; }
+        .header h1 { margin: 0; font-size: 18px; color: #1a202c; text-transform: uppercase; }
+        .info-empresa { text-align: right; }
+        
+        /* Filtros Aplicados */
+        .filtros { background: #f7fafc; padding: 8px; border: 1px solid #e2e8f0; margin-bottom: 20px; border-radius: 4px; }
+        .filtros strong { color: #4a5568; }
+
+        /* Tabela */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: left; }
+        th { background-color: #edf2f7 !important; color: #2d3748; font-weight: bold; text-transform: uppercase; font-size: 10px; }
+        
+        tr:nth-child(even) { background-color: #f8fafc; }
+        
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+        .font-bold { font-weight: bold; }
+
+        /* Rodapé de Totais */
+        .total-box { margin-top: 20px; text-align: right; border-top: 2px solid #444; padding-top: 10px; }
+        .total-box span { font-size: 14px; font-weight: black; }
+
+        .footer { margin-top: 30px; text-align: center; font-size: 9px; color: #a0aec0; border-top: 1px solid #e2e8f0; padding-top: 10px; }
     </style>
 </head>
-<body class="bg-gray-100 p-4 print:bg-white print:p-0 text-gray-800 font-sans">
+<body>
 
-    <div class="max-w-5xl mx-auto bg-white shadow-lg print:shadow-none print:w-full min-h-screen relative pb-10">
-        
-        <!-- CABEÇALHO -->
-        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-start">
-            <div class="flex items-center gap-3">
-                {% if empresa.logo %}
-                    <img src="{{ empresa.logo.url }}" class="h-10 w-auto object-contain">
-                {% else %}
-                    <div class="h-10 w-10 bg-gray-800 text-white flex items-center justify-center font-bold rounded text-lg">
-                        {{ empresa.nome|slice:":1" }}
-                    </div>
-                {% endif %}
-                <div>
-                    <h1 class="text-lg font-bold uppercase tracking-wide text-gray-800 leading-tight">{{ empresa.nome }}</h1>
-                    <p class="text-[10px] text-gray-500">CNPJ: {{ empresa.cnpj }}</p>
-                </div>
-            </div>
-            <div class="text-right">
-                <h2 class="text-base font-semibold text-gray-700">{{ titulo_relatorio }}</h2>
-                <p class="text-[10px] text-gray-400 mt-0.5">Emitido em {% now "d/m/Y H:i" %}</p>
-            </div>
-        </div>
-
-        <!-- DADOS DO FILTRO -->
-        <div class="px-6 py-2 bg-gray-50 border-b border-gray-200 flex gap-8 text-xs print:bg-gray-50">
-            {% if data_ini and data_fim %}
-            <div>
-                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Período Vencimento:</span>
-                <span class="font-semibold text-gray-700 ml-1">{{ data_ini|date:"d/m/Y" }} a {{ data_fim|date:"d/m/Y" }}</span>
-            </div>
-            {% endif %}
-            
-            {% if status_filtro %}
-            <div>
-                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Status:</span>
-                <span class="font-semibold text-gray-700 ml-1">
-                    {% if status_filtro == 'PENDENTE' %}Pendentes{% elif status_filtro == 'PAGA' %}Baixadas{% elif status_filtro == 'ATRASADA' %}Atrasadas{% else %}{{ status_filtro }}{% endif %}
-                </span>
-            </div>
-            {% else %}
-            <div>
-                <span class="text-[9px] font-bold text-gray-400 uppercase tracking-wider">Status:</span>
-                <span class="font-semibold text-gray-700 ml-1">Todos</span>
-            </div>
-            {% endif %}
-        </div>
-
-        <div class="p-6">
-            
-            <table class="w-full text-[10px]">
-                <thead>
-                    <tr class="text-[9px] text-gray-400 uppercase border-b border-gray-300">
-                        <th class="py-1 text-left font-medium w-24">Vencimento</th>
-                        <th class="py-1 text-left font-medium">Entidade</th>
-                        <th class="py-1 text-left font-medium w-48">Descrição / Doc</th>
-                        <th class="py-1 text-left font-medium w-32">Categoria</th>
-                        <th class="py-1 text-center font-medium w-20">Status</th>
-                        <th class="py-1 text-right font-medium w-28">Valor</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    {% for c in contas %}
-                    <tr>
-                        <td class="py-1 text-gray-600 font-mono">{{ c.data_vencimento|date:"d/m/Y" }}</td>
-                        <td class="py-1 font-bold text-gray-800">{{ c.cadastro.nome|default:"-" }}</td>
-                        <td class="py-1 text-gray-600">
-                            {{ c.descricao }}
-                            {% if c.documento %}
-                                <span class="text-[9px] text-gray-400 block">Doc: {{ c.documento }}</span>
-                            {% endif %}
-                        </td>
-                        <td class="py-1 text-gray-500 truncate">{{ c.plano_de_contas.nome }}</td>
-                        <td class="py-1 text-center">
-                            {% if c.status == 'PAGA' %}
-                                <span class="text-green-600 font-bold text-[9px]">BAIXADA</span>
-                            {% elif c.status == 'CANCELADA' %}
-                                <span class="text-gray-400 text-[9px]">CANCELADA</span>
-                            {% else %}
-                                {% now "Y-m-d" as hoje %}
-                                {% if c.data_vencimento|date:"Y-m-d" < hoje %}
-                                    <span class="text-red-600 font-bold text-[9px]">ATRASADA</span>
-                                {% else %}
-                                    <span class="text-yellow-600 font-bold text-[9px]">PENDENTE</span>
-                                {% endif %}
-                            {% endif %}
-                        </td>
-                        <td class="py-1 text-right font-bold text-gray-700">R$ {{ c.valor|floatformat:2 }}</td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="6" class="py-4 text-center text-gray-400 italic">Nenhum registro encontrado.</td></tr>
-                    {% endfor %}
-                </tbody>
-                <tfoot>
-                    <tr class="border-t border-gray-300 bg-gray-50">
-                        <td colspan="5" class="py-2 text-right text-[10px] font-bold text-gray-600 uppercase pr-4">Total Geral:</td>
-                        <td class="py-2 text-right font-bold text-lg text-gray-800">R$ {{ total_valor|floatformat:2 }}</td>
-                    </tr>
-                </tfoot>
-            </table>
-
-        </div>
-
-        <!-- Botão Flutuante -->
-        <div class="fixed bottom-8 right-8 no-print">
-            <button onclick="window.print()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 px-4 rounded-full shadow-lg flex items-center border border-gray-600 text-xs">
-                <i class="fas fa-print mr-2"></i> Imprimir
-            </button>
-        </div>
-
+<div class="container">
+    <div class="no-print" style="text-align: right; margin-bottom: 20px;">
+        <button onclick="window.print()" style="padding: 8px 16px; background: #2d3748; color: white; border: none; border-radius: 4px; cursor: pointer;">🖨️ Imprimir Relatório</button>
     </div>
+
+    <div class="header">
+        <div>
+            <h1>{{ titulo_relatorio }}</h1>
+            <p>Emissão: {% now "d/m/Y H:i" %}</p>
+        </div>
+        <div class="info-empresa">
+            <h2 style="margin:0; font-size: 14px;">{{ empresa.nome }}</h2>
+            <p style="margin:2px 0;">CNPJ: {{ empresa.cnpj }}</p>
+        </div>
+    </div>
+
+    <div class="filtros">
+        <strong>PERÍODO:</strong> {{ data_ini|date:"d/m/Y"|default:"Início" }} até {{ data_fim|date:"d/m/Y"|default:"Fim" }} |
+        <strong>SITUAÇÃO:</strong> {{ status_filtro|default:"TODOS" }}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th width="80">Vencimento</th>
+                <th>Favorecido (Cliente/Func)</th>
+                <th width="100">Documento / NF</th>
+                <th>Descrição / Plano de Contas</th>
+                <th width="100" class="text-right">Valor (R$)</th>
+                <th width="80" class="text-center">Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in contas %}
+            <tr>
+                <td class="text-center">{{ c.data_vencimento|date:"d/m/Y" }}</td>
+                <td>
+                    {% if c.tipo_favorecido == 'FUNCIONARIO' %}
+                        {{ c.funcionario.nome_completo }} (F)
+                    {% else %}
+                        {{ c.cadastro.nome }}
+                    {% endif %}
+                </td>
+                <!-- COLUNA DO DOCUMENTO ADICIONADA -->
+                <td class="text-center font-bold">
+                    {{ c.documento|default:"---" }}
+                </td>
+                <td>
+                    <span class="font-bold">{{ c.descricao }}</span><br>
+                    <small style="color: #718096;">{{ c.plano_de_contas.nome }}</small>
+                </td>
+                <td class="text-right font-bold">
+                    {{ c.valor|floatformat:2 }}
+                </td>
+                <td class="text-center">
+                    {% if c.status == 'PAGA' %}PAGO{% else %}ABERTO{% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">Nenhum registro encontrado para os filtros selecionados.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="total-box">
+        <strong>TOTAL GERAL:</strong> 
+        <span class="font-bold">R$ {{ total_valor|floatformat:2 }}</span>
+    </div>
+
+    <div class="footer">
+        Gerado por e-Gerente Serviços - Sistema de Gestão SaaS
+    </div>
+</div>
+
 </body>
 </html>

@@ -126,15 +126,15 @@
                 <tr class="hover:bg-gray-50 transition-colors group">
                     <td class="px-6 py-4 whitespace-nowrap text-gray-600 font-mono">{{ l.data_lancamento|date:"d/m/Y" }}</td>
                     
-                    <td class="px-6 py-4 font-medium text-gray-800">
-                        {{ l.descricao }}
-                        {% if l.conta_origem %}
-                            <span class="ml-2 px-2 py-0.5 rounded text-[10px] bg-gray-100 text-gray-500 border border-gray-200 uppercase tracking-wide" title="Gerado automaticamente de uma baixa de conta">
-                                Auto
+                    <td class="px-4 py-3">
+                        <div class="text-sm text-gray-900">{{ l.descricao }}</div>
+                        <!-- Se o lançamento veio de uma conta que tem documento, mostramos o Badge aqui também -->
+                        {% if l.conta_origem and l.conta_origem.documento %}
+                            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold bg-gray-100 text-gray-600 border border-gray-200 mt-1 uppercase">
+                                Doc Origem: {{ l.conta_origem.documento }}
                             </span>
                         {% endif %}
-                    </td>
-                    
+                    </td>                    
                     <td class="px-6 py-4 text-gray-500">{{ l.plano_de_contas.nome|default:"-" }}</td>
                     
                     {% if not caixa_selecionado_id %}

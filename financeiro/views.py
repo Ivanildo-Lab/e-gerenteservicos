@@ -338,15 +338,33 @@ def baixar_conta(request, id):
         caixa_id = request.POST.get('caixa')
         data_pagamento = request.POST.get('data_pagamento')
         
+        # Captura os dados do modal
+        novo_documento = request.POST.get('documento_baixa')
+        arquivo_baixa = request.FILES.get('arquivo_baixa')
+        
         if not caixa_id or not data_pagamento:
             messages.error(request, "Preencha todos os campos da baixa.")
             return redirect('financeiro:lista_receber' if conta.plano_de_contas.tipo == 'R' else 'financeiro:lista_pagar')
 
         caixa = get_object_or_404(Caixa, id=caixa_id, empresa=request.user.empresa)
 
-        # Mapeia o tipo do Plano (R/D) para o tipo do Lançamento (C/D)
-        # R (Receita) -> C (Crédito)
-        # D (Despesa) -> D (Débito)
+        # 1. ATUALIZA A CONTA ORIGINAL (O título financeiro)
+        if novo_documento:
+            conta.documento = novo_documento
+        
+        if arquivo_baixa:
+            conta.arquivo = arquivo_baixa
+            
+        conta.status = 'PAGA'
+        conta.save()
+
+        # 2. MONTA A DESCRIÇÃO PARA O HISTÓRICO DO CAIXA
+        # Padrão: Baixa: [Descrição Original] - Documento num [Número]
+        descricao_historico = f"Baixa: {conta.descricao}"
+        if novo_documento:
+            descricao_historico += f" - Documento num {novo_documento}"
+
+        # 3. CRIA O LANÇAMENTO NO FLUXO DE CAIXA
         tipo_lancamento = 'C' if conta.plano_de_contas.tipo == 'R' else 'D'
 
         Lancamento.objects.create(
@@ -354,21 +372,15 @@ def baixar_conta(request, id):
             caixa=caixa,
             plano_de_contas=conta.plano_de_contas,
             conta_origem=conta,
-            descricao=f"Baixa: {conta.descricao}",
+            descricao=descricao_historico, # <--- Descrição completa aqui
             data_lancamento=data_pagamento,
             valor=conta.valor,
             tipo=tipo_lancamento
         )
-
-        conta.status = 'PAGA'
-        conta.save()
         
-        messages.success(request, "Baixa realizada com sucesso!")
+        messages.success(request, f"Baixa realizada com sucesso! Doc: {novo_documento if novo_documento else 'S/N'}")
         
-        if conta.plano_de_contas.tipo == 'R':
-            return redirect('financeiro:lista_receber')
-        else:
-            return redirect('financeiro:lista_pagar')
+        return redirect('financeiro:lista_receber' if conta.plano_de_contas.tipo == 'R' else 'financeiro:lista_pagar')
     
     return redirect('financeiro:lista_receber')
 
