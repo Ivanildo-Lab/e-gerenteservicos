@@ -43,6 +43,7 @@ class Conta(ModeloSaaS):
     TIPO_FAVORECIDO_CHOICES =[
         ('CADASTRO', 'Cliente / Fornecedor'),
         ('FUNCIONARIO', 'Funcionário (Folha / Adiantamento)'),
+        ('SIMPLES', 'Simples Nacional'),
     ]
 
     tipo_favorecido = models.CharField(max_length=15, choices=TIPO_FAVORECIDO_CHOICES, default='CADASTRO', verbose_name="Tipo de Favorecido")
