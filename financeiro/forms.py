@@ -74,6 +74,8 @@ class ContaForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             if field_name in ['arquivo', 'gerar_parcelas']: continue
             css_class = 'w-full border border-gray-300 rounded p-2 text-sm shadow-sm focus:ring-blue-500 focus:border-blue-500'
+            if field_name == 'valor':
+                css_class = 'w-full pl-10 pr-3 py-2 border border-gray-300 rounded p-2 text-sm shadow-sm focus:ring-blue-500 focus:border-blue-500'
             if isinstance(field.widget, forms.Select): css_class += ' bg-white'
             field.widget.attrs.update({'class': css_class})
             

@@ -81,7 +81,7 @@
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Valor Total</label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-500">R$</div>
-                    <input type="number" name="valor" step="0.01" class="pl-10 w-full border border-gray-300 rounded p-2 text-sm shadow-sm" id="id_valor" value="{{ form.valor.value|default:''|stringformat:'.2f' }}">
+                    {{ form.valor }}
                 </div>
             </div>
 
