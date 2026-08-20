@@ -282,7 +282,7 @@ def processar_lancamento_conta(request, form, tipo_redirect):
 def nova_receita(request):
     """Cria conta pré-filtrando categorias de Receita e Clientes"""
     if request.method == 'POST':
-        form = ContaForm(request.POST, user=request.user, tipo_filtro='R')
+        form = ContaForm(request.POST, request.FILES, user=request.user, tipo_filtro='R')
         if form.is_valid():
             return processar_lancamento_conta(request, form, 'financeiro:lista_receber')
     else:
@@ -293,7 +293,7 @@ def nova_receita(request):
 def nova_despesa(request):
     """Cria conta pré-filtrando categorias de Despesa e Fornecedores"""
     if request.method == 'POST':
-        form = ContaForm(request.POST, user=request.user, tipo_filtro='D')
+        form = ContaForm(request.POST, request.FILES, user=request.user, tipo_filtro='D')
         if form.is_valid():
             return processar_lancamento_conta(request, form, 'financeiro:lista_pagar')
     else:
@@ -308,7 +308,7 @@ def editar_conta(request, id):
     tipo_filtro = conta.plano_de_contas.tipo 
 
     if request.method == 'POST':
-        form = ContaForm(request.POST, instance=conta, user=request.user, tipo_filtro=tipo_filtro)
+        form = ContaForm(request.POST, request.FILES, instance=conta, user=request.user, tipo_filtro=tipo_filtro)
         if form.is_valid():
             form.save()
             messages.success(request, "Conta atualizada.")

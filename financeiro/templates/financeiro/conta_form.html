@@ -125,24 +125,39 @@
                 <p class="text-[9px] text-gray-400 mt-1 italic">Número da Nota ou Recibo</p>
             </div>
 
-            <div class="md:col-span-3 text-center">
+            <div class="md:col-span-3">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Comprovante / Anexo</label>
+                
+                {% if form.instance.arquivo %}
+                <!-- JA EXISTE UM ARQUIVO: Mostra link para ver + botao para substituir -->
+                <div id="anexo-Atual" class="h-20 w-full bg-blue-50 border-2 border-blue-200 rounded flex flex-col items-center justify-center overflow-hidden relative">
+                    <a href="{{ form.instance.arquivo.url }}" target="_blank" class="text-center group hover:bg-blue-100 w-full h-full flex flex-col items-center justify-center rounded transition">
+                        {% if form.instance.arquivo.url|slice:'-4:' == '.pdf' %}
+                            <i class="fa fa-file-pdf text-2xl text-red-500"></i>
+                        {% else %}
+                            <i class="fa fa-file-image text-2xl text-blue-500"></i>
+                        {% endif %}
+                        <span class="text-[9px] font-bold text-blue-700 block uppercase mt-1">Ver Arquivo Anexado</span>
+                        <span class="text-[8px] text-blue-400 block">Clique para abrir</span>
+                    </a>
+                </div>
+                <label for="{{ form.arquivo.auto_id }}" class="mt-1 cursor-pointer inline-flex items-center px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded text-[9px] font-bold text-gray-500 uppercase transition w-full justify-center border border-dashed">
+                    <i class="fa fa-sync-alt mr-1"></i> Substituir Arquivo
+                </label>
+                {{ form.arquivo }}
+                {% else %}
+                <!-- NENHUM ARQUIVO: Area de upload -->
                 <label for="{{ form.arquivo.auto_id }}" class="cursor-pointer group block">
-                    <div class="h-20 w-full bg-gray-50 border-2 border-dashed border-gray-300 rounded flex flex-col items-center justify-center overflow-hidden hover:border-blue-500 transition relative">
+                    <div id="anexo-upload-area" class="h-20 w-full bg-gray-50 border-2 border-dashed border-gray-300 rounded flex flex-col items-center justify-center overflow-hidden hover:border-blue-500 transition relative">
                         <div id="anexo-placeholder" class="text-center">
-                            {% if form.instance.arquivo %}
-                                <i class="fa fa-file-invoice-dollar text-xl text-blue-500"></i>
-                                <span class="text-[8px] font-bold text-blue-600 block uppercase">Ver Arquivo Atual</span>
-                            {% else %}
-                                <i class="fa fa-cloud-upload-alt text-xl text-gray-300 group-hover:text-blue-400"></i>
-                                <span class="text-[8px] text-gray-400 block uppercase">Anexar Arquivo</span>
-                            {% endif %}
+                            <i class="fa fa-cloud-upload-alt text-xl text-gray-300 group-hover:text-blue-400"></i>
+                            <span class="text-[8px] text-gray-400 block uppercase">Anexar Arquivo</span>
                         </div>
-                        <!-- Preview para imagens -->
                         <img id="anexo-preview" class="hidden w-full h-full object-cover absolute inset-0">
                     </div>
-                    {{ form.arquivo }}
                 </label>
+                {{ form.arquivo }}
+                {% endif %}
             </div>
         </div>
 
@@ -212,7 +227,7 @@
             });
         }
 
-        // --- 3. PREVIEW DO ANEXO ---
+        // --- 3. PREVIEW DO ANEXO (quando seleciona um novo arquivo) ---
         const inputArquivo = document.getElementById('id_arquivo');
         if (inputArquivo) {
             inputArquivo.onchange = function() {
@@ -220,14 +235,30 @@
                 if (file) {
                     const preview = document.getElementById('anexo-preview');
                     const placeholder = document.getElementById('anexo-placeholder');
-                    if (file.type.startsWith('image/')) {
-                        preview.src = URL.createObjectURL(file);
-                        preview.classList.remove('hidden');
-                        placeholder.classList.add('hidden');
-                    } else {
-                        placeholder.innerHTML = '<i class="fa fa-file-pdf text-2xl text-green-500 animate-pulse"></i><br><span class="text-[8px] font-bold text-green-600 uppercase">Documento Selecionado</span>';
-                        preview.classList.add('hidden');
-                        placeholder.classList.remove('hidden');
+                    const uploadArea = document.getElementById('anexo-upload-area');
+
+                    // Se existe area de upload (nenhum arquivo ainda), mostra preview nela
+                    if (uploadArea && preview && placeholder) {
+                        if (file.type.startsWith('image/')) {
+                            preview.src = URL.createObjectURL(file);
+                            preview.classList.remove('hidden');
+                            placeholder.classList.add('hidden');
+                        } else {
+                            placeholder.innerHTML = '<i class="fa fa-file-pdf text-2xl text-green-500 animate-pulse"></i><br><span class="text-[8px] font-bold text-green-600 uppercase">Documento Selecionado</span>';
+                            preview.classList.add('hidden');
+                            placeholder.classList.remove('hidden');
+                        }
+                    }
+
+                    // Se ja existia arquivo, esconde o box antigo e mostra o novo preview
+                    const boxAtual = document.getElementById('anexo-Atual');
+                    if (boxAtual) {
+                        boxAtual.innerHTML = '<div class="text-center w-full h-full flex flex-col items-center justify-center">' +
+                            (file.type.startsWith('image/')
+                                ? '<img src="' + URL.createObjectURL(file) + '" class="h-full w-full object-cover rounded absolute inset-0">'
+                                : '<i class="fa fa-file-pdf text-2xl text-green-500 animate-pulse"></i><br><span class="text-[8px] font-bold text-green-600 uppercase">Novo Documento Selecionado</span>') +
+                            '</div>';
+                        boxAtual.className = 'h-20 w-full bg-green-50 border-2 border-green-300 rounded flex flex-col items-center justify-center overflow-hidden relative';
                     }
                 }
             };
