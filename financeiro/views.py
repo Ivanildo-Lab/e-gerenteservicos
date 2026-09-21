@@ -960,9 +960,17 @@ def relatorio_contas(request):
 
     if data_ini and data_fim:
         contas = contas.filter(data_vencimento__range=[data_ini, data_fim])
+    elif data_ini:
+        contas = contas.filter(data_vencimento__gte=data_ini)
+    elif data_fim:
+        contas = contas.filter(data_vencimento__lte=data_fim)
     
     if nome:
-        contas = contas.filter(cadastro__nome__icontains=nome)
+        contas = contas.filter(
+            Q(cadastro__nome__icontains=nome) |
+            Q(funcionario__nome_completo__icontains=nome) |
+            Q(descricao__icontains=nome)
+        )
 
     if status:
         if status == 'ATRASADA':
