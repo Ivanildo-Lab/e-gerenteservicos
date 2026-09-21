@@ -50,14 +50,43 @@
         </div>
     </div>
 
-    {% if tipo_lista == 'receber' and total_juros is not None %}
-    <div class="bg-gray-50 border-b border-gray-200 px-6 py-3">
-        <div class="flex flex-wrap gap-4 text-sm">
-            <span class="font-bold text-gray-700">Registros: <b>{{ contas.paginator.count|default:contas|length }}</b></span>
-            {% if taxa_juros_mensal %}<span class="text-gray-400">|</span><span class="text-red-600">Juros ({{ taxa_juros_mensal }}% a.m.): <b>{{ total_juros|moeda_br }}</b></span><span class="text-gray-400">|</span><span class="text-blue-700 font-bold">Total c/ Juros: {{ total_com_juros|moeda_br }}</span>{% endif %}
+    <!-- RESUMO - CARDS -->
+    <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+        <div class="flex flex-wrap gap-3">
+            <!-- Total Geral -->
+            <div class="bg-white border border-gray-200 rounded-lg px-4 py-2 min-w-[140px] shadow-sm">
+                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Geral</div>
+                <div class="text-lg font-black text-gray-800">{{ total_geral|moeda_br }}</div>
+                <div class="text-[10px] text-gray-400">{{ qtd_total|default:0 }} registro(s)</div>
+            </div>
+            <!-- Em Aberto -->
+            <div class="bg-white border border-yellow-200 rounded-lg px-4 py-2 min-w-[140px] shadow-sm">
+                <div class="text-[10px] font-bold text-yellow-500 uppercase tracking-wider">Em Aberto</div>
+                <div class="text-lg font-black text-yellow-600">{{ total_aberto|moeda_br }}</div>
+                <div class="text-[10px] text-yellow-500">{{ qtd_pendentes|default:0 }} pendente(s)</div>
+            </div>
+            <!-- Baixadas -->
+            <div class="bg-white border border-green-200 rounded-lg px-4 py-2 min-w-[140px] shadow-sm">
+                <div class="text-[10px] font-bold text-green-500 uppercase tracking-wider">Baixadas</div>
+                <div class="text-lg font-black text-green-600">{{ total_pago|moeda_br }}</div>
+                <div class="text-[10px] text-green-500">{{ qtd_pagas|default:0 }} baixada(s)</div>
+            </div>
+            <!-- Atrasadas -->
+            <div class="bg-white border border-red-200 rounded-lg px-4 py-2 min-w-[140px] shadow-sm">
+                <div class="text-[10px] font-bold text-red-500 uppercase tracking-wider">Atrasadas</div>
+                <div class="text-lg font-black text-red-600">{{ qtd_atrasadas|default:0 }}</div>
+                <div class="text-[10px] text-red-400">vencida(s)</div>
+            </div>
+            {% if tipo_lista == 'receber' and total_juros is not None and total_juros > 0 %}
+            <!-- Juros -->
+            <div class="bg-white border border-orange-200 rounded-lg px-4 py-2 min-w-[140px] shadow-sm">
+                <div class="text-[10px] font-bold text-orange-500 uppercase tracking-wider">Juros ({{ taxa_juros_mensal }}% a.m.)</div>
+                <div class="text-lg font-black text-orange-600">{{ total_juros|moeda_br }}</div>
+                <div class="text-[10px] text-blue-600 font-bold">Total c/ Juros: {{ total_com_juros|moeda_br }}</div>
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 
     {% if tipo_lista == 'receber' %}
     <div id="barraLote" class="hidden bg-blue-50 border-b border-blue-200 px-6 py-3 flex flex-wrap gap-4 items-center justify-between">

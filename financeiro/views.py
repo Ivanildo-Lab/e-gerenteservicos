@@ -215,6 +215,8 @@ def lista_contas_receber(request):
     qtd_pendentes = contas.filter(status='PENDENTE').count()
     qtd_pagas = contas.filter(status='PAGA').count()
     qtd_atrasadas = contas.filter(status='PENDENTE', data_vencimento__lt=date.today()).count()
+    total_pago = contas.filter(status='PAGA').aggregate(Sum('valor'))['valor__sum'] or 0
+    total_aberto = contas.filter(status='PENDENTE').aggregate(Sum('valor'))['valor__sum'] or 0
 
     return render(request, 'financeiro/contas_lista.html', {
         'contas': contas_para_template,
@@ -235,6 +237,8 @@ def lista_contas_receber(request):
         'total_juros': total_juros,
         'total_com_juros': total_com_juros,
         'total_geral': total_geral,
+        'total_pago': total_pago,
+        'total_aberto': total_aberto,
         'qtd_pendentes': qtd_pendentes,
         'qtd_pagas': qtd_pagas,
         'qtd_atrasadas': qtd_atrasadas,
@@ -281,9 +285,18 @@ def lista_contas_pagar(request):
     caixas = Caixa.objects.filter(empresa=request.user.empresa)
     # Carrega apenas categorias de DESPESA para o filtro
     categorias = PlanoDeContas.objects.filter(empresa=request.user.empresa, tipo='D').order_by('nome')
+
+    # --- TOTAIS ---
+    contas_ordenadas = contas.order_by('data_vencimento')
+    total_geral = contas_ordenadas.aggregate(Sum('valor'))['valor__sum'] or 0
+    total_pago = contas_ordenadas.filter(status='PAGA').aggregate(Sum('valor'))['valor__sum'] or 0
+    total_aberto = contas_ordenadas.filter(status='PENDENTE').aggregate(Sum('valor'))['valor__sum'] or 0
+    qtd_pendentes = contas_ordenadas.filter(status='PENDENTE').count()
+    qtd_pagas = contas_ordenadas.filter(status='PAGA').count()
+    qtd_atrasadas = contas_ordenadas.filter(status='PENDENTE', data_vencimento__lt=date.today()).count()
     
     return render(request, 'financeiro/contas_lista.html', {
-        'contas': contas.order_by('data_vencimento'), 
+        'contas': contas_ordenadas, 
         'caixas': caixas,
         'categorias': categorias,
         'titulo': 'Contas a Pagar',
@@ -292,7 +305,14 @@ def lista_contas_pagar(request):
         'filtro_data_fim': data_fim,
         'filtro_nome': fornecedor_nome,
         'filtro_status': status,
-        'filtro_categoria': categoria_id
+        'filtro_categoria': categoria_id,
+        'total_geral': total_geral,
+        'total_pago': total_pago,
+        'total_aberto': total_aberto,
+        'qtd_pendentes': qtd_pendentes,
+        'qtd_pagas': qtd_pagas,
+        'qtd_atrasadas': qtd_atrasadas,
+        'qtd_total': qtd_pendentes + qtd_pagas,
     })
 
 # ==========================================================
