@@ -29,11 +29,15 @@
                 <select name="status" class="w-full border p-2 rounded text-sm h-9 bg-white">
                     <option value="">Todos</option>
                     <option value="PENDENTE" {% if filtro_status == 'PENDENTE' %}selected{% endif %}>Pendentes</option>
+                    <option value="ATRASADA" {% if filtro_status == 'ATRASADA' %}selected{% endif %}>Atrasadas</option>
                     <option value="PAGA" {% if filtro_status == 'PAGA' %}selected{% endif %}>Baixadas</option>
                 </select>
             </div>
             <div class="md:col-span-1 flex gap-1">
-                <button type="submit" class="bg-gray-700 text-white px-2 rounded hover:bg-gray-800 text-sm h-9 flex items-center justify-center flex-1"><i class="fa fa-search"></i></button>
+                <button type="submit" class="bg-gray-700 text-white px-2 rounded hover:bg-gray-800 text-sm h-9 flex items-center justify-center flex-1" title="Filtrar"><i class="fa fa-search"></i></button>
+                {% if filtro_nome or filtro_data_ini or filtro_data_fim or filtro_status or filtro_categoria %}
+                <a href="{% if tipo_lista == 'receber' %}{% url 'financeiro:lista_receber' %}{% else %}{% url 'financeiro:lista_pagar' %}{% endif %}" class="bg-yellow-500 text-white px-2 rounded hover:bg-yellow-600 text-sm h-9 flex items-center justify-center flex-1" title="Limpar Filtros"><i class="fa fa-times"></i></a>
+                {% endif %}
                 <a href="{% url 'financeiro:relatorio_contas' %}?tipo_lista={{ tipo_lista }}&data_ini={{ filtro_data_ini|default:'' }}&data_fim={{ filtro_data_fim|default:'' }}&cliente={{ filtro_nome|default:'' }}&status={{ filtro_status|default:'' }}&categoria={{ filtro_categoria|default:'' }}" target="_blank" class="bg-blue-600 text-white px-2 rounded hover:bg-blue-700 text-sm h-9 flex items-center justify-center flex-1" title="Imprimir"><i class="fa fa-print"></i></a>
             </div>
         </form>

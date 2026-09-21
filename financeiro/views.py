@@ -2,7 +2,7 @@ from datetime import date
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.utils.dateparse import parse_date
 from django.db import transaction
 
@@ -140,9 +140,17 @@ def lista_contas_receber(request):
 
     if data_ini and data_fim:
         contas = contas.filter(data_vencimento__range=[data_ini, data_fim])
+    elif data_ini:
+        contas = contas.filter(data_vencimento__gte=data_ini)
+    elif data_fim:
+        contas = contas.filter(data_vencimento__lte=data_fim)
     
     if cliente_nome:
-        contas = contas.filter(cadastro__nome__icontains=cliente_nome)
+        contas = contas.filter(
+            Q(cadastro__nome__icontains=cliente_nome) |
+            Q(funcionario__nome_completo__icontains=cliente_nome) |
+            Q(descricao__icontains=cliente_nome)
+        )
 
     if status:
         if status == 'ATRASADA':
@@ -248,9 +256,17 @@ def lista_contas_pagar(request):
 
     if data_ini and data_fim:
         contas = contas.filter(data_vencimento__range=[data_ini, data_fim])
+    elif data_ini:
+        contas = contas.filter(data_vencimento__gte=data_ini)
+    elif data_fim:
+        contas = contas.filter(data_vencimento__lte=data_fim)
     
     if fornecedor_nome:
-        contas = contas.filter(cadastro__nome__icontains=fornecedor_nome)
+        contas = contas.filter(
+            Q(cadastro__nome__icontains=fornecedor_nome) |
+            Q(funcionario__nome_completo__icontains=fornecedor_nome) |
+            Q(descricao__icontains=fornecedor_nome)
+        )
 
     if status:
         if status == 'ATRASADA':
@@ -1015,7 +1031,6 @@ def relatorio_dre(request):
     )
 
     # 3. Agrupamento (Total por Categoria)
-    from django.db.models import Sum
     
     # Receitas
     receitas = lancamentos.filter(tipo='C').values(
