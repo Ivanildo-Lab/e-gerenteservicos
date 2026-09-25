@@ -27,8 +27,9 @@
             <div class="md:col-span-2">
                 <label class="text-[10px] font-bold text-gray-500 uppercase">Status</label>
                 <select name="status" class="w-full border p-2 rounded text-sm h-9 bg-white">
-                    <option value="">Todos</option>
+                    <option value="" {% if not filtro_status %}selected{% endif %}>Abertas (Pendente/Parcial)</option>
                     <option value="PENDENTE" {% if filtro_status == 'PENDENTE' %}selected{% endif %}>Pendentes</option>
+                    <option value="PARCIAL" {% if filtro_status == 'PARCIAL' %}selected{% endif %}>Parcialmente Pagas</option>
                     <option value="ATRASADA" {% if filtro_status == 'ATRASADA' %}selected{% endif %}>Atrasadas</option>
                     <option value="PAGA" {% if filtro_status == 'PAGA' %}selected{% endif %}>Baixadas</option>
                 </select>
@@ -107,16 +108,36 @@
                     {% if tipo_lista == 'receber' %}
                     <th class="px-2 py-3 text-center"><input type="checkbox" id="chkTodos"></th>
                     {% endif %}
-                    <th class="px-6 py-3 text-left">Vencimento</th>
-                    <th class="px-6 py-3 text-left">Favorecido</th>
-                    <th class="px-6 py-3 text-left">Descrição</th>
-                    <th class="px-6 py-3 text-right">Valor</th>
+                    <th class="px-6 py-3 text-left">
+                        <a href="?{{ query_string }}{% if query_string %}&{% endif %}ordenar={% if ordenar == 'vencimento' %}-vencimento{% else %}vencimento{% endif %}" class="cursor-pointer hover:text-blue-600 hover:underline flex items-center gap-1">
+                            Vencimento {% if ordenar == 'vencimento' %}▲{% elif ordenar == '-vencimento' %}▼{% else %}<i class="fa fa-sort text-gray-300"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left">
+                        <a href="?{{ query_string }}{% if query_string %}&{% endif %}ordenar={% if ordenar == 'cliente' %}-cliente{% else %}cliente{% endif %}" class="cursor-pointer hover:text-blue-600 hover:underline flex items-center gap-1">
+                            Favorecido {% if ordenar == 'cliente' %}▲{% elif ordenar == '-cliente' %}▼{% else %}<i class="fa fa-sort text-gray-300"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-left">
+                        <a href="?{{ query_string }}{% if query_string %}&{% endif %}ordenar={% if ordenar == 'documento' %}-documento{% else %}documento{% endif %}" class="cursor-pointer hover:text-blue-600 hover:underline flex items-center gap-1">
+                            Descrição {% if ordenar == 'documento' %}▲{% elif ordenar == '-documento' %}▼{% else %}<i class="fa fa-sort text-gray-300"></i>{% endif %}
+                        </a>
+                    </th>
+                    <th class="px-6 py-3 text-right">
+                        <a href="?{{ query_string }}{% if query_string %}&{% endif %}ordenar={% if ordenar == 'valor' %}-valor{% else %}valor{% endif %}" class="cursor-pointer hover:text-blue-600 hover:underline flex items-center justify-end gap-1">
+                            Valor {% if ordenar == 'valor' %}▲{% elif ordenar == '-valor' %}▼{% else %}<i class="fa fa-sort text-gray-300"></i>{% endif %}
+                        </a>
+                    </th>
                     {% if tipo_lista == 'receber' %}
                     <th class="px-3 py-3 text-center">Dias Atraso</th>
                     <th class="px-3 py-3 text-right">Juros</th>
                     <th class="px-3 py-3 text-right">Total c/ Juros</th>
                     {% endif %}
-                    <th class="px-6 py-3 text-center">Status</th>
+                    <th class="px-6 py-3 text-center">
+                        <a href="?{{ query_string }}{% if query_string %}&{% endif %}ordenar={% if ordenar == 'status' %}-status{% else %}status{% endif %}" class="cursor-pointer hover:text-blue-600 hover:underline flex items-center justify-center gap-1">
+                            Status {% if ordenar == 'status' %}▲{% elif ordenar == '-status' %}▼{% else %}<i class="fa fa-sort text-gray-300"></i>{% endif %}
+                        </a>
+                    </th>
                     <th class="px-6 py-3 text-center">Ações</th>
                 </tr>
             </thead>
@@ -201,12 +222,12 @@
         <div class="bg-gray-50 border-t border-gray-200 px-6 py-3 flex items-center justify-between">
             <div class="text-sm text-gray-500">Pagina {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</div>
             <div class="flex gap-1">
-                {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}" class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-100"><i class="fa fa-chevron-left"></i></a>{% endif %}
+                {% if page_obj.has_previous %}<a href="?{{ query_string }}{% if query_string %}&{% endif %}ordenar={{ ordenar }}&page={{ page_obj.previous_page_number }}" class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-100"><i class="fa fa-chevron-left"></i></a>{% endif %}
                 {% for num in page_obj.paginator.page_range %}
                     {% if page_obj.number == num %}<span class="px-3 py-1 text-sm bg-blue-600 text-white rounded font-bold">{{ num }}</span>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<a href="?page={{ num }}&{{ request.GET.urlencode }}" class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-100">{{ num }}</a>{% endif %}
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<a href="?{{ query_string }}{% if query_string %}&{% endif %}ordenar={{ ordenar }}&page={{ num }}" class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-100">{{ num }}</a>{% endif %}
                 {% endfor %}
-                {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}" class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-100"><i class="fa fa-chevron-right"></i></a>{% endif %}
+                {% if page_obj.has_next %}<a href="?{{ query_string }}{% if query_string %}&{% endif %}ordenar={{ ordenar }}&page={{ page_obj.next_page_number }}" class="px-3 py-1 text-sm bg-white border rounded hover:bg-gray-100"><i class="fa fa-chevron-right"></i></a>{% endif %}
             </div>
         </div>
         {% endif %}
