@@ -101,7 +101,9 @@
                 </label>
             </div>
             <div class="flex items-center space-x-3 mb-4">
-                {{ form.lembrete_pagamento }}
+                <div class="flex items-center">
+                    {{ form.lembrete_pagamento }}
+                </div>
                 <label for="{{ form.lembrete_pagamento.id_for_label }}" class="text-sm font-bold text-amber-700 cursor-pointer select-none">
                     <i class="fa fa-bell mr-1"></i> Lembrete de Pagamento (destaca no painel)
                 </label>
