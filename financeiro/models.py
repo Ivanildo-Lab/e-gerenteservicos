@@ -83,6 +83,9 @@ class Conta(ModeloSaaS):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDENTE')
     documento = models.CharField(max_length=50, blank=True, null=True, verbose_name="Nº Doc / Parcela")
 
+    # --- LEMBRETE DE PAGAMENTO ---
+    lembrete_pagamento = models.BooleanField(default=False, verbose_name="Lembrete de Pagamento", help_text="Marque para destacar esta conta no painel e relatórios como lembrete para pagar")
+
     observacoes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     arquivo = models.FileField(upload_to='financeiro/contas/', blank=True, null=True, verbose_name="Anexo / Comprovante")

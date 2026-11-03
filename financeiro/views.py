@@ -197,6 +197,10 @@ def lista_contas_receber(request):
     _qp.pop('page', None)
     query_string = _qp.urlencode()
 
+    # --- Separar contas com LEMBRETE DE PAGAMENTO ---
+    contas_lembrete = contas.filter(lembrete_pagamento=True)
+    contas_normais = contas.filter(lembrete_pagamento=False)
+
     # Taxa de juros mensal
     taxa_juros_mensal = get_taxa_juros_mensal(request.user.empresa)
 
@@ -282,6 +286,9 @@ def lista_contas_receber(request):
         'qtd_pagas': qtd_pagas,
         'qtd_atrasadas': qtd_atrasadas,
         'qtd_total': qtd_pendentes + qtd_pagas,
+        # Lembrete de pagamento
+        'contas_lembrete': contas_lembrete,
+        'contas_normais': contas_normais,
     })
 
 @login_required
@@ -355,6 +362,10 @@ def lista_contas_pagar(request):
     _qp.pop('page', None)
     query_string = _qp.urlencode()
 
+    # --- Separar contas com LEMBRETE DE PAGAMENTO ---
+    contas_lembrete = contas.filter(lembrete_pagamento=True)
+    contas_normais = contas.filter(lembrete_pagamento=False)
+
     caixas = Caixa.objects.filter(empresa=request.user.empresa)
     # Carrega apenas categorias de DESPESA para o filtro
     categorias = PlanoDeContas.objects.filter(empresa=request.user.empresa, tipo='D').order_by('nome')
@@ -367,9 +378,9 @@ def lista_contas_pagar(request):
     qtd_pagas = contas.filter(status='PAGA').count()
     qtd_atrasadas = contas.filter(status__in=['PENDENTE', 'PARCIAL'], data_vencimento__lt=date.today()).count()
 
-    # Paginacao (para preservar ordenar)
+    # Paginacao (para preservar ordenar) - só nas contas normais
     from django.core.paginator import Paginator
-    paginator = Paginator(contas, 50)
+    paginator = Paginator(contas_normais, 50)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -396,6 +407,9 @@ def lista_contas_pagar(request):
         'qtd_pagas': qtd_pagas,
         'qtd_atrasadas': qtd_atrasadas,
         'qtd_total': qtd_pendentes + qtd_pagas,
+        # Lembrete de pagamento
+        'contas_lembrete': contas_lembrete,
+        'contas_normais': contas_normais,
     })
 
 # ==========================================================

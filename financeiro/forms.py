@@ -57,7 +57,7 @@ class ContaForm(forms.ModelForm):
         fields = [
             'tipo_favorecido', 'descricao', 'plano_de_contas', 
             'cadastro', 'funcionario', 'valor', 'data_vencimento', 
-            'status', 'documento', 'observacoes', 'arquivo'
+            'status', 'documento', 'lembrete_pagamento', 'observacoes', 'arquivo'
         ]
         widgets = {
             'data_vencimento': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date'}),
