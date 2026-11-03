@@ -85,25 +85,25 @@
                 </div>
             </div>
 
-            <div class="md:col-span-4">
+            <div class="md:col-span-4" id="box_status">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Status</label>
                 {{ form.status }}
             </div>
-
-            <div class="md:col-span-4">
-                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Lembrete de Pagamento</label>
-                {{ form.lembrete_pagamento }}
-                <p class="text-[9px] text-amber-600 mt-1 italic">Marque para destacar no painel e relatórios</p>
-            </div>
         </div>
 
-        <!-- SEÇÃO DE PARCELAMENTO -->
+        <!-- SEÇÃO DE PARCELAMENTO E LEMBRETE -->
         {% if not form.instance.pk %}
-        <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100 mb-6">
+        <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100 mb-6" id="box_parcelamento">
             <div class="flex items-center space-x-3 mb-4">
                 {{ form.gerar_parcelas }}
                 <label for="{{ form.gerar_parcelas.id_for_label }}" class="text-sm font-bold text-gray-700 cursor-pointer select-none">
                     Deseja parcelar este valor?
+                </label>
+            </div>
+            <div class="flex items-center space-x-3 mb-4">
+                {{ form.lembrete_pagamento }}
+                <label for="{{ form.lembrete_pagamento.id_for_label }}" class="text-sm font-bold text-amber-700 cursor-pointer select-none">
+                    <i class="fa fa-bell mr-1"></i> Lembrete de Pagamento (destaca no painel)
                 </label>
             </div>
 
@@ -189,14 +189,24 @@
         const inputFuncionario = document.getElementById('id_funcionario');
 
         function atualizarFavorecido() {
+            const boxStatus = document.getElementById('box_status');
+            const boxParcelamento = document.getElementById('box_parcelamento');
             if (selectFavorecido.value === 'FUNCIONARIO') {
                 boxCadastro.classList.add('hidden');
                 boxFuncionario.classList.remove('hidden');
-                // Se o seu select do Django for opcional, limpamos o outro valor
+                if (boxStatus) boxStatus.classList.remove('hidden');
+                if (boxParcelamento) boxParcelamento.classList.remove('hidden');
                 if (inputCadastro) inputCadastro.selectedIndex = 0;
+            } else if (selectFavorecido.value === 'SIMPLES') {
+                boxCadastro.classList.add('hidden');
+                boxFuncionario.classList.add('hidden');
+                if (boxStatus) boxStatus.classList.add('hidden');
+                if (boxParcelamento) boxParcelamento.classList.add('hidden');
             } else {
                 boxCadastro.classList.remove('hidden');
                 boxFuncionario.classList.add('hidden');
+                if (boxStatus) boxStatus.classList.remove('hidden');
+                if (boxParcelamento) boxParcelamento.classList.remove('hidden');
                 if (inputFuncionario) inputFuncionario.selectedIndex = 0;
             }
         }
