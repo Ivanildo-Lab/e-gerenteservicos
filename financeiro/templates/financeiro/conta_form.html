@@ -92,7 +92,6 @@
         </div>
 
         <!-- SEÇÃO DE PARCELAMENTO E LEMBRETE -->
-        {% if not form.instance.pk %}
         <div class="bg-blue-50/50 p-4 rounded-lg border border-blue-100 mb-6" id="box_parcelamento">
             <div class="flex items-center space-x-3 mb-4">
                 {{ form.gerar_parcelas }}
@@ -118,7 +117,6 @@
                 </div>
             </div>
         </div>
-        {% endif %}
 
         <!-- OBSERVAÇÕES, DOCUMENTO E ANEXO -->
         <div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-6">
