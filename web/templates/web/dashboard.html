@@ -65,8 +65,8 @@
     </div>
 </div>
 
-<!-- 2. SEÇÃO DE ALERTAS (CONTAS ATRASADAS LADO A LADO) -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+<!-- 2. SEÇÃO DE ALERTAS (ATRASADOS + LEMBRETES) -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
     
     <!-- Recebimentos em Atraso (Verde/Azul) -->
     <div class="bg-white rounded-lg shadow border-t-4 border-green-500 flex flex-col h-80">
@@ -130,6 +130,43 @@
                 <li class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60">
                     <i class="fa fa-thumbs-up text-4xl mb-2 text-blue-400"></i>
                     <p class="text-sm italic">Tudo em dia!</p>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Lembretes de Pagamento (Âmbar) -->
+    <div class="bg-white rounded-lg shadow border-t-4 border-amber-500 flex flex-col h-80">
+        <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="text-sm font-bold text-gray-700 uppercase">
+                <i class="fa fa-bell mr-2 text-amber-500"></i> Lembretes de Pagamento
+            </h3>
+            <a href="{% url 'financeiro:lista_pagar' %}" class="text-[10px] bg-amber-50 text-amber-600 px-2 py-1 rounded hover:bg-amber-100 font-bold transition">
+                VER TODOS
+            </a>
+        </div>
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+            <ul class="divide-y divide-gray-100">
+                {% for conta in lembretes_pagamento %}
+                <li class="p-3 hover:bg-gray-50 transition">
+                    <div class="flex justify-between mb-1">
+                        <span class="font-bold text-gray-800 text-xs truncate mr-2">
+                            {% if conta.tipo_favorecido == 'FUNCIONARIO' %}{{ conta.funcionario.nome_completo }}{% else %}{{ conta.cadastro.nome|default:"Sem nome" }}{% endif %}
+                        </span>
+                        <span class="font-black text-amber-600 text-xs">R$ {{ conta.valor|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-gray-500">
+                        <span class="truncate">{{ conta.descricao }}</span>
+                        <span class="bg-amber-100 text-amber-700 px-1 rounded font-bold">
+                            <i class="fa fa-bell mr-1"></i> Vence: {{ conta.data_vencimento|date:"d/m" }}
+                        </span>
+                    </div>
+                </li>
+                {% empty %}
+                <li class="h-full flex flex-col items-center justify-center text-gray-400 opacity-60">
+                    <i class="fa fa-bell-slash text-4xl mb-2 text-amber-400"></i>
+                    <p class="text-sm italic">Nenhum lembrete ativo</p>
                 </li>
                 {% endfor %}
             </ul>

@@ -70,6 +70,13 @@ def dashboard(request):
         data_vencimento__lt=hoje
     ).order_by('data_vencimento')[:10]
 
+    # Lembretes de Pagamento (contas marcadas com lembrete_pagamento=True)
+    lembretes_pagamento = Conta.objects.filter(
+        empresa=empresa,
+        lembrete_pagamento=True,
+        status='PENDENTE'
+    ).order_by('data_vencimento')[:10]
+
     # 4. DADOS PARA O GRÁFICO (Últimos 6 meses)
     labels_grafico = []
     dados_receita = []
@@ -103,7 +110,8 @@ def dashboard(request):
         'despesa_mensal': abs(despesa_mensal_raw),
         'saldo': saldo_mes,
         'contas_atrasadas': contas_atrasadas,
-        'pagamentos_atrasados': pagamentos_atrasados, # Variável nova enviada ao template
+        'pagamentos_atrasados': pagamentos_atrasados,
+        'lembretes_pagamento': lembretes_pagamento,
         'grafico_labels': labels_grafico,
         'grafico_receita': dados_receita,
         'grafico_despesa': dados_despesa,
