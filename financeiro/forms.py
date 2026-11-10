@@ -80,8 +80,8 @@ class ContaForm(forms.ModelForm):
             field.widget.attrs.update({'class': css_class})
             
         if user and user.empresa:
-            self.fields['cadastro'].queryset = Cadastro.objects.filter(empresa=user.empresa)
-            self.fields['funcionario'].queryset = Funcionario.objects.filter(empresa=user.empresa)
+            self.fields['cadastro'].queryset = Cadastro.objects.filter(empresa=user.empresa).order_by('nome')
+            self.fields['funcionario'].queryset = Funcionario.objects.filter(empresa=user.empresa).order_by('nome_completo')
             planos = PlanoDeContas.objects.filter(empresa=user.empresa)
             if tipo_filtro: planos = planos.filter(tipo=tipo_filtro)
             self.fields['plano_de_contas'].queryset = planos
